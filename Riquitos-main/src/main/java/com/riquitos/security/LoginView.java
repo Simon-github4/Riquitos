@@ -22,6 +22,7 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver {
         setSizeFull(); 
         setAlignItems(Alignment.CENTER);
         setJustifyContentMode(JustifyContentMode.CENTER);
+        
 
         login.setAction("login"); // Spring Security espera esta acción por defecto
         login.setForgotPasswordButtonVisible(false);
