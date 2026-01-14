@@ -37,9 +37,7 @@
     "typescript": "5.9.3",
     "vite": "7.3.0",
     "vite-plugin-checker": "0.12.0",
-    "workbox-build": "7.4.0",
-    "workbox-core": "7.3.0",
-    "workbox-precaching": "7.3.0"
+    "workbox-build": "7.4.0"
   },
   "vaadin": {
     "dependencies": {
@@ -77,11 +75,9 @@
       "typescript": "5.9.3",
       "vite": "7.3.0",
       "vite-plugin-checker": "0.12.0",
-      "workbox-build": "7.4.0",
-      "workbox-core": "7.3.0",
-      "workbox-precaching": "7.3.0"
+      "workbox-build": "7.4.0"
     },
-    "hash": "9c71a1e653b266799a3fcd6f7b2e2fabcb3714b8863e920652bd1a032bbf9932"
+    "hash": "8f88d3a3f89b35309d2304d71bd55e03b2e12a35879e94675654bcc3ea69adce"
   },
   "overrides": {
     "@vaadin/vaadin-development-mode-detector": "$@vaadin/vaadin-development-mode-detector",
@@ -97,7 +93,6 @@
     "proj4": "$proj4",
     "@vaadin/vaadin-themable-mixin": "$@vaadin/vaadin-themable-mixin",
     "@vaadin/vaadin-lumo-styles": "$@vaadin/vaadin-lumo-styles",
-    "html5-qrcode": "$html5-qrcode",
     "@vaadin/cookie-consent": "24.9.4",
     "@vaadin/aura": "$@vaadin/aura",
     "ol": "$ol",
@@ -166,6 +161,7 @@
     "@vaadin/dashboard": "25.0.1",
     "@vaadin/grid-pro": "25.0.1",
     "@vaadin/map": "25.0.1",
-    "@vaadin/rich-text-editor": "25.0.1"
+    "@vaadin/rich-text-editor": "25.0.1",
+    "html5-qrcode": "$html5-qrcode"
   }
 }

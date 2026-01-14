@@ -1,5 +1,7 @@
 package com.riquitos.product;
 
+import java.util.List;
+
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -12,4 +14,6 @@ import com.riquitos.entities.Product;
 public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpecificationExecutor<Product> {
 
 	Slice<Product> findAllBy(Pageable pageable);
+	
+	List<Product> findByDescriptionContainingIgnoreCase(String filterText);
 }

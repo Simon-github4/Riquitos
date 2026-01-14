@@ -2,6 +2,6 @@ package com.riquitos.security;
 
 public enum Role {
     OPERARIO,
-    VENDEDOR,
+    VENDEDOR, 
     ADMIN;
 }

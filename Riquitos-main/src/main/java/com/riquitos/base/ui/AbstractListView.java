@@ -4,6 +4,7 @@ import com.riquitos.AbstractCrudService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.notification.NotificationVariant;
@@ -37,6 +38,8 @@ public abstract class AbstractListView<T, F extends AbstractForm<T>, S extends A
         
         this.grid = new Grid<>(entityClass, false);
         this.grid.setHeightFull(); 
+        this.grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
+
         this.form = createForm();
         
         configureGrid(); // Las columnas siguen siendo específicas de cada hijo
@@ -59,7 +62,7 @@ public abstract class AbstractListView<T, F extends AbstractForm<T>, S extends A
     // ----------------------------------------------
 
     private void configureFormLogic() {
-        form.setWidth("250px");
+        form.setWidth("25em");
         //form.setMinWidth("400px"); 
         
         // GUARDAR y BORRAR: Usa el servicio genérico directamente
@@ -97,12 +100,13 @@ public abstract class AbstractListView<T, F extends AbstractForm<T>, S extends A
         HorizontalLayout content = new HorizontalLayout(grid, form);
         content.setFlexGrow(2, grid);
         content.setFlexGrow(1, form);
+        content.setFlexShrink(0, form);
         content.addClassNames("content");
         content.setSizeFull();
         return content;
     }
 
-    private Component getToolbar(String title) {
+    protected Component getToolbar(String title) {
         filterText.setPlaceholder("Filtrar...");
         filterText.setClearButtonVisible(true);
         filterText.setValueChangeMode(ValueChangeMode.LAZY);
@@ -115,7 +119,7 @@ public abstract class AbstractListView<T, F extends AbstractForm<T>, S extends A
         return new ViewToolbar(title, ViewToolbar.group(filterText, addButton));
     }
 
-    public void editItem(T item, boolean showDelete) {
+    protected void editItem(T item, boolean showDelete) {
         if (item == null) {
             closeEditor();
         } else {
@@ -128,7 +132,7 @@ public abstract class AbstractListView<T, F extends AbstractForm<T>, S extends A
         }
     }
 
-    private void addItem() {
+    protected void addItem() {
         grid.asSingleSelect().clear();
         try {
             T newItem = entityClass.getDeclaredConstructor().newInstance();

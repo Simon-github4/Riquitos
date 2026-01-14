@@ -17,7 +17,7 @@ public abstract class AbstractCrudService<T, ID> {
     }
     
     @Transactional(readOnly = true)
-    public List<T> findAll(Pageable pageable) {
+    public List<T> findAll() {
         return repository.findAll();
         //TODO: Cambiar a paginado cuando se necesite
     }
