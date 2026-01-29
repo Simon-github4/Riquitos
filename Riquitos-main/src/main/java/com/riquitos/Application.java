@@ -12,7 +12,7 @@ import com.vaadin.flow.theme.lumo.Lumo;
 @SpringBootApplication
 @StyleSheet(Lumo.STYLESHEET) // Use Aura.STYLESHEET to use Aura instead
 @StyleSheet(Lumo.UTILITY_STYLESHEET)
-@StyleSheet("styles.css") // Your custom styles
+@StyleSheet("styles.css") // Your custom styles 
 @PWA(
 	    name = "Riquitos ERP", 
 	    shortName = "Riquitos", 
