@@ -25,10 +25,12 @@ public abstract class AbstractListView<T, F extends AbstractForm<T>, S extends A
     protected TextField filterText = new TextField();
     
     private Class<T> entityClass;// Necesitamos la clase para poder hacer newInstance() sin errores
+    private String pageTitle; 
 
     public AbstractListView(Class<T> entityClass, String title, S service) {
         this.entityClass = entityClass;
         this.service = service; 
+        this.pageTitle = title;
         
         addClassName("list-view");
         setSizeFull();
@@ -36,23 +38,24 @@ public abstract class AbstractListView<T, F extends AbstractForm<T>, S extends A
         setSpacing(false);
         getStyle().setOverflow(Style.Overflow.HIDDEN);
         
+    }
+    
+    @PostConstruct
+    protected void init() {
+        this.form = createForm();
+        
         this.grid = new Grid<>(entityClass, false);
         this.grid.setHeightFull(); 
         this.grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
-
-        this.form = createForm();
+        
+        Component content = getContent();
+        add(getToolbar(pageTitle), content);
+        setFlexGrow(1, content); 
+        closeEditor();
         
         configureGrid(); // Las columnas siguen siendo específicas de cada hijo
         configureFormLogic();
         
-        Component content = getContent();
-        add(getToolbar(title), content);
-        setFlexGrow(1, content); 
-        closeEditor();
-    }
-    
-    @PostConstruct
-    private void init() {
     	updateList();
     }
     

@@ -1,4 +1,4 @@
-package com.riquitos.customers;
+package com.riquitos.movimientos;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -6,6 +6,8 @@ import java.time.LocalDateTime;
 
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
+import com.riquitos.customers.Customer;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -46,8 +48,9 @@ public class Movimiento {
 
     private String descripcion; 
 
+    @Builder.Default
     @Column(nullable = false)
-    private LocalDate fecha;
+    private LocalDate fecha = LocalDate.now();
     
     @CreatedDate
     @Column(nullable = false, updatable = false)
@@ -62,5 +65,24 @@ public class Movimiento {
         PAGO    
     }
 
-	
+    // Métodos auxiliares para compatibilidad con Dashboard
+    public LocalDate getFecha() {
+        return fecha;
+    }
+
+    public MovementType getTipo() {
+        return tipo;
+    }
+
+    public BigDecimal getMonto() {
+        return monto;
+    }
+
+    public Customer getCliente() {
+        return cliente;
+    }
+
+    public void setCliente(Customer cliente) {
+        this.cliente = cliente;
+    }
 }

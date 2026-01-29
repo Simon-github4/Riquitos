@@ -5,7 +5,7 @@ import java.util.Locale;
 
 import com.riquitos.base.ui.AbstractListView;
 import com.riquitos.base.ui.MainLayout;
-import com.riquitos.entities.Product;
+import com.riquitos.production.material.RawMaterialService;
 import com.vaadin.flow.data.renderer.NumberRenderer;
 import com.vaadin.flow.router.Menu;
 import com.vaadin.flow.router.PageTitle;
@@ -15,17 +15,20 @@ import jakarta.annotation.security.RolesAllowed;
 
 @Route(value = "productos", layout = MainLayout.class)
 @PageTitle("Productos")
-@Menu(order = 2, icon = "vaadin:cube", title = "Productos")
+@Menu(order = 2, icon = "vaadin:package", title = "Productos")
 @RolesAllowed({"ADMIN"})
 public class ProductView extends AbstractListView<Product, ProductForm, ProductService> {
-
-    public ProductView(ProductService service) {
-        super(Product.class, "Listado de Productos", service);
+	
+	private final RawMaterialService rawMaterialService;
+	
+    public ProductView(ProductService service, RawMaterialService rawMaterialService) {
+    	super(Product.class, "Listado de Productos", service);
+    	this.rawMaterialService = rawMaterialService;
     }
 
     @Override
     protected ProductForm createForm() {
-        return new ProductForm();
+        return new ProductForm(rawMaterialService);
     }
 
     @Override

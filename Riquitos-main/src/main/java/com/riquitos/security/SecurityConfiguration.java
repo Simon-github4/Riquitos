@@ -40,7 +40,7 @@ public class SecurityConfiguration {
 
         return http.build();
     }
-
+    
     @Bean
     public UserDetailsManager userDetailsService() {
         UserDetails operario = User.withUsername("operario")

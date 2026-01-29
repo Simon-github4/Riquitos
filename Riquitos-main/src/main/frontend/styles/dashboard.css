@@ -1,0 +1,50 @@
+/* Dashboard Styles */
+
+.kpi-card {
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.kpi-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.deudores-grid {
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.deudores-grid .vaadin-grid-cell {
+    font-weight: 500;
+}
+
+.deudores-grid .vaadin-grid-header-cell {
+    font-weight: 600;
+    color: #495057;
+    background-color: #f8f9fa;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .kpi-card {
+        margin-bottom: 12px;
+    }
+    
+    .deudores-grid {
+        height: 400px;
+    }
+}
+
+@media (max-width: 480px) {
+    .kpi-card {
+        padding: 16px !important;
+    }
+    
+    .kpi-card div:nth-child(2) {
+        font-size: 12px !important;
+    }
+    
+    .kpi-card div:nth-child(3) {
+        font-size: 20px !important;
+    }
+}

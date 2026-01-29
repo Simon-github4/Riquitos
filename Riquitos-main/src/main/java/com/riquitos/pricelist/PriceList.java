@@ -1,7 +1,9 @@
-package com.riquitos.entities;
+package com.riquitos.pricelist;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+
+import com.riquitos.product.Product;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

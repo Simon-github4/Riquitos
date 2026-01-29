@@ -1,9 +1,11 @@
-package com.riquitos.customers;
+package com.riquitos.movimientos;
 
 import com.riquitos.base.ui.AbstractListView;
 import com.riquitos.base.ui.MainLayout;
 import com.riquitos.base.ui.ViewToolbar; // Asegúrate de importar tu ViewToolbar
-import com.riquitos.customers.Movimiento.MovementType;
+import com.riquitos.customers.Customer;
+import com.riquitos.customers.CustomerService;
+import com.riquitos.movimientos.Movimiento.MovementType;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -20,13 +22,13 @@ import jakarta.annotation.security.PermitAll;
 
 @Route(value = "movimientos", layout = MainLayout.class)
 @PageTitle("Movimientos | Riquitos")
-@Menu(order = 5, icon = "vaadin:cube", title = "Movimientos")
+@Menu(order = 5, icon = "vaadin:exchange", title = "Movimientos")
 @PermitAll
 public class MovimientoListView extends AbstractListView<Movimiento, MovimientoForm, MovimientoService> implements HasUrlParameter<Long> {
 
     private final CustomerService customerService;
     
-    private ComboBox<Customer> clientFilter;
+    private ComboBox<Customer> clientFilter = new ComboBox<>();
 
     public MovimientoListView(MovimientoService movementService, CustomerService customerService) {
         super(Movimiento.class, "Historial de Movimientos", movementService);
@@ -34,25 +36,13 @@ public class MovimientoListView extends AbstractListView<Movimiento, MovimientoF
         
         // Lo configuramos aquí porque 'customerService' ya no es null
         clientFilter.setItems(customerService.findAll());
-        this.form.setClientes(customerService.findAll());
     }
 
-
-    // 3. SOBRESCRIBIMOS el Toolbar para poner el Combo en lugar del TextField
     @Override
-    protected Component getToolbar(String title) {
-    	clientFilter = new ComboBox<>();
-        clientFilter.setPlaceholder("Filtrar por Cliente...");
-        clientFilter.setClearButtonVisible(true);
-        clientFilter.setItemLabelGenerator(Customer::getName); 
-        clientFilter.setWidth("250px");
-        clientFilter.addValueChangeListener(e -> updateList());
-        
-        
-        Button addButton = new Button("Nuevo Item");
-        addButton.addClickListener(click -> addItem());
-
-        return new ViewToolbar(title, ViewToolbar.group(clientFilter, addButton));
+    protected void init() {
+        super.init(); 
+        // 2. Ahora 'this.form' YA EXISTE (no es null).
+        form.setClientes(customerService.findAll());
     }
 
     @Override
@@ -60,7 +50,6 @@ public class MovimientoListView extends AbstractListView<Movimiento, MovimientoF
         return new MovimientoForm(java.util.Collections.emptyList());
     }
     
-    // 4. SOBRESCRIBIMOS la lógica de actualización
     @Override
     public void updateList() {
         // Nota: super.updateList() usa el filterText, así que NO lo llamamos.
@@ -97,7 +86,22 @@ public class MovimientoListView extends AbstractListView<Movimiento, MovimientoF
 
         grid.asSingleSelect().addValueChangeListener(event -> editItem(event.getValue(), true));
     }
-   
+
+    @Override
+    protected Component getToolbar(String title) {
+        clientFilter.setPlaceholder("Filtrar por Cliente...");
+        clientFilter.setClearButtonVisible(true);
+        clientFilter.setItemLabelGenerator(Customer::getName); 
+        clientFilter.setWidth("250px");
+        clientFilter.addValueChangeListener(e -> updateList());
+        
+        
+        Button addButton = new Button("Nuevo Item");
+        addButton.addClickListener(click -> addItem());
+
+        return new ViewToolbar(title, ViewToolbar.group(clientFilter, addButton));
+    }
+
     /**
      * Este método se ejecuta automáticamente al navegar a esta vista con un parámetro.
      * Ejemplo: UI.navigate(MovimientoListView.class, 123L);

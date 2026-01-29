@@ -5,7 +5,6 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import com.riquitos.AbstractCrudService;
-import com.riquitos.entities.Product;
 
 @Service
 public class ProductService extends AbstractCrudService<Product, Long> {

@@ -1,12 +1,16 @@
-package com.riquitos.entities;
+package com.riquitos.product;
 
 import java.math.BigDecimal;
+import java.util.List;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Entity
@@ -27,6 +31,9 @@ public class Product {
     @Column(name = "cost_price", nullable = false, precision = 12, scale = 2)
     private BigDecimal costPrice;
 
+    @OneToMany(mappedBy = "product", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProductIngredient> recipe;
+    
     public Product() {}
 
     // Getters and Setters
@@ -42,6 +49,10 @@ public class Product {
 	public String getSku() {return sku;}
 	public void setSku(String sku) {this.sku = sku;}
     
+	
+	public List<ProductIngredient> getRecipe() {return recipe;}
+	public void setRecipe(List<ProductIngredient> recipe) {this.recipe = recipe;}
+
 	@Override
     public String toString() {
     	return description;

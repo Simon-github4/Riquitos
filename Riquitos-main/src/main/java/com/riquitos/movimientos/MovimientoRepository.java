@@ -1,4 +1,4 @@
-package com.riquitos.customers;
+package com.riquitos.movimientos;
 
 import java.util.List;
 

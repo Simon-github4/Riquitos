@@ -1,12 +1,13 @@
-package com.riquitos.base.ui;
+package com.riquitos.production;
 
-import java.math.BigDecimal;
 import java.util.List;
 
-import com.riquitos.entities.Product; // Asegúrate de importar tu entidad
+import com.riquitos.base.ui.MainLayout;
+import com.riquitos.base.ui.ViewToolbar;
+import com.riquitos.product.Product;
 import com.riquitos.product.ProductService; // Importar el servicio
-
 import com.vaadin.flow.component.ClientCallable;
+import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -14,8 +15,11 @@ import com.vaadin.flow.component.dependency.NpmPackage;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.BigDecimalField;
 import com.vaadin.flow.component.textfield.TextField;
@@ -28,35 +32,37 @@ import jakarta.annotation.security.PermitAll;
 @PageTitle("QR Scanner")
 @Route(value = "scan-qr", layout = MainLayout.class)
 @NpmPackage(value = "html5-qrcode", version = "2.3.8")
-@Menu(order = 3, icon = "vaadin:clipboard-check", title = "QR")
+@Menu(order = 3, icon = "vaadin:qrcode", title = "QR")
 @PermitAll
 public class ScanView extends VerticalLayout {
 
     // SERVICIOS
-    private final ProductService productService; // NUEVO: Servicio inyectado
-
+    private final ProductService productService; 
+    private final ProductionBatchService productionBatchService;
+    
     // UI COMPONENTS
     private final TextField codigoQrField; 
-    private final TextField productoSeleccionadoField; // NUEVO: Para mostrar el producto real elegido
+    private final TextField productoSeleccionadoField; 
     private final BigDecimalField cantidadField;
     private final Div cameraContainer;
     private final Button toggleCameraBtn;
     
     // ESTADO
     private boolean isScanning = false;
-    private Product selectedProduct; // NUEVO: Guardamos el objeto producto, no solo el string
+    private Product selectedProduct; 
 
-    // Constructor con inyección de dependencia
-    public ScanView(ProductService productService) { 
-        this.productService = productService; // NUEVO: Asignación
+    public ScanView(ProductService productService, ProductionBatchService productionService) { 
+        this.productService = productService; 
+        this.productionBatchService = productionService;
 
         setWidthFull();
         setAlignItems(Alignment.CENTER);
         setJustifyContentMode(JustifyContentMode.CENTER);
+        setPadding(false);
+        setSpacing(false);
 
         add(new ViewToolbar("Registro de Lote"));
 
-        // CONTENEDOR CÁMARA
         cameraContainer = new Div();
         cameraContainer.setId("reader");
         cameraContainer.setWidthFull();
@@ -68,7 +74,6 @@ public class ScanView extends VerticalLayout {
         cameraContainer.getStyle().set("overflow", "hidden");
         cameraContainer.getStyle().set("background-color", "#f5f5f5"); 
 
-        // BOTÓN CÁMARA
         toggleCameraBtn = new Button("Iniciar Escáner");
         toggleCameraBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         toggleCameraBtn.setEnabled(false);
@@ -76,14 +81,23 @@ public class ScanView extends VerticalLayout {
         toggleCameraBtn.setMaxWidth("300px");
         toggleCameraBtn.addClickListener(e -> toggleCamera());
 
-        // CAMPOS DE DATOS
-        codigoQrField = new TextField("Texto Escaneado (Búsqueda)");
-        codigoQrField.setReadOnly(true);
-        codigoQrField.setWidthFull();
-        codigoQrField.setMaxWidth("300px");
-        codigoQrField.setPlaceholder("Esperando escaneo...");
+        codigoQrField = new TextField("Código escaneado o Búsqueda manual");
+        codigoQrField.setReadOnly(false); // Ahora permitimos escribir
+        codigoQrField.setClearButtonVisible(true); // Botón 'X' para borrar rápido
+        codigoQrField.setWidthFull(); 
+        codigoQrField.setPlaceholder("Escriba nombre o escanee...");
 
-        // NUEVO: Campo para mostrar qué producto se eligió finalmente
+        // Botón para ejecutar la búsqueda manual
+        Button buscarManualBtn = new Button(new Icon(VaadinIcon.SEARCH));
+        buscarManualBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        buscarManualBtn.addClickListener(e -> buscarManualmente());
+        //buscarManualBtn.addClickShortcut(Key.ENTER); 
+
+        HorizontalLayout searchLayout = new HorizontalLayout(codigoQrField, buscarManualBtn);
+        searchLayout.setWidthFull();
+        searchLayout.setMaxWidth("300px");
+        searchLayout.setAlignItems(Alignment.BASELINE);
+
         productoSeleccionadoField = new TextField("Producto Identificado");
         productoSeleccionadoField.setReadOnly(true);
         productoSeleccionadoField.setWidthFull();
@@ -101,9 +115,8 @@ public class ScanView extends VerticalLayout {
         confirmarBtn.setMaxWidth("300px");
         confirmarBtn.addClickListener(e -> confirmar());
 
-        // Añadimos el nuevo campo al layout
-        add(cameraContainer, toggleCameraBtn, codigoQrField, productoSeleccionadoField, cantidadField, confirmarBtn);
-
+        add(cameraContainer, toggleCameraBtn, searchLayout, productoSeleccionadoField, cantidadField, confirmarBtn);
+        
         cargarLibreria();
     }
 
@@ -141,14 +154,27 @@ public class ScanView extends VerticalLayout {
             codigoQrField.setValue(decodedText);
             Notification.show("Código leído: " + decodedText, 1000, Notification.Position.MIDDLE);
 
-            // 2. NUEVO: Lógica de búsqueda en base de datos
             buscarYSeleccionarProducto(decodedText);
         }));
     }
 
-    // NUEVO: Método central de lógica de negocio
+    private void buscarManualmente() {
+        String texto = codigoQrField.getValue();
+        
+        if (texto == null || texto.trim().isEmpty()) {
+            Notification.show("Ingrese un texto para buscar", 3000, Notification.Position.MIDDLE)
+                    .addThemeVariants(NotificationVariant.LUMO_CONTRAST);
+            return;
+        }
+        
+        // Si la cámara estaba prendida, quizás quieras apagarla o pausarla, 
+        // aunque no es estrictamente necesario.
+        
+        // Reutilizamos tu lógica central
+        buscarYSeleccionarProducto(texto);
+    }
+    
     private void buscarYSeleccionarProducto(String textoBusqueda) {
-        // Limpiar selección previa
         this.selectedProduct = null;
         this.productoSeleccionadoField.clear();
 
@@ -169,7 +195,6 @@ public class ScanView extends VerticalLayout {
         }
     }
 
-    // NUEVO: Diálogo para desambiguar
     private void abrirDialogoSeleccion(List<Product> productos) {
         Dialog dialog = new Dialog();
         dialog.setHeaderTitle("Seleccione un producto");
@@ -197,7 +222,6 @@ public class ScanView extends VerticalLayout {
         dialog.open();
     }
 
-    // NUEVO: Establece el producto en el estado de la vista
     private void seleccionarProducto(Product p) {
         this.selectedProduct = p;
         // Asumiendo que Product tiene un método toString() o getDescription() útil
@@ -242,23 +266,27 @@ public class ScanView extends VerticalLayout {
             return;
         }
 
-        // --- AQUÍ TU LÓGICA DE GUARDADO EN BASE DE DATOS ---
-        // Ahora usas this.selectedProduct (Objeto real) y cantidadField.getValue()
-        
-        BigDecimal cantidad = cantidadField.getValue();
-        
-        // Ejemplo: productionService.save(selectedProduct, cantidad);
-        
-        Notification.show("Producción registrada: " + selectedProduct.toString() + " x " + cantidad, 
-                3000, Notification.Position.BOTTOM_CENTER)
-                .addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+        try {
+            productionBatchService.registrarProduccion(
+                selectedProduct, 
+                cantidadField.getValue()
+                //codigoQrField.getValue()
+            );
+            
+            Notification.show("Producción registrada: " + selectedProduct.toString() + " x " + cantidadField.getValue(), 
+                    3000, Notification.Position.BOTTOM_CENTER)
+                    .addThemeVariants(NotificationVariant.LUMO_SUCCESS);
 
-        // Limpieza para el siguiente
-        codigoQrField.clear();
-        productoSeleccionadoField.clear();
-        cantidadField.clear();
-        selectedProduct = null;
-        cantidadField.setInvalid(false);
+            codigoQrField.clear();
+            productoSeleccionadoField.clear();
+            cantidadField.clear();
+            selectedProduct = null;
+            cantidadField.setInvalid(false);
+            
+        } catch (Exception e) {
+            Notification.show("Error: " + e.getMessage(), 5000, Notification.Position.MIDDLE)
+                   .addThemeVariants(NotificationVariant.LUMO_ERROR);
+        }
     }
 
     private void startCameraJS() {

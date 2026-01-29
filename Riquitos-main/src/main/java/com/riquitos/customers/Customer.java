@@ -4,7 +4,8 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.riquitos.customers.Movimiento.MovementType;
+import com.riquitos.movimientos.Movimiento;
+import com.riquitos.movimientos.Movimiento.MovementType;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -49,6 +50,14 @@ public class Customer {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
-    
+    @Override
+    public String toString() {
+        return "Customer{" +
+                "id=" + id +
+                ", nombre='" + name + '\'' +
+                ", email='" + email + '\'' +
+                // NO incluir: movimientos
+                '}';
+    }
     
 }

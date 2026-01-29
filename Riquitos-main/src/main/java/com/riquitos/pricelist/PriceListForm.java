@@ -1,7 +1,6 @@
 package com.riquitos.pricelist;
 
 import com.riquitos.base.ui.AbstractForm;
-import com.riquitos.entities.PriceList;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.textfield.BigDecimalField;
 import com.vaadin.flow.component.textfield.TextField;

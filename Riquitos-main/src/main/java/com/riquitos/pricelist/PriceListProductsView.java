@@ -7,10 +7,10 @@ import java.util.Locale;
 import com.riquitos.base.ui.AbstractListView;
 import com.riquitos.base.ui.MainLayout;
 import com.riquitos.base.ui.ViewToolbar;
-import com.riquitos.entities.PriceList;
-import com.riquitos.entities.Product;
+import com.riquitos.product.Product;
 import com.riquitos.product.ProductForm;
 import com.riquitos.product.ProductService;
+import com.riquitos.production.material.RawMaterialService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -27,35 +27,36 @@ import jakarta.annotation.security.RolesAllowed;
 
 @Route(value = "listas", layout = MainLayout.class)
 @PageTitle("Listas de precios")
-@Menu(order = 1, icon = "vaadin:clipboard-check", title = "Listas de precios")
+@Menu(order = 1, icon = "vaadin:invoice", title = "Listas de precios")
 @RolesAllowed({"VENDEDOR", "ADMIN"})
 public class PriceListProductsView
     extends AbstractListView<Product, ProductForm, ProductService> {
 
     private final PriceListService priceListService;
+	private final RawMaterialService rawMaterialService;
 
     private PriceList selectedPriceList;
-    private ComboBox<PriceList> priceListCombo;
+    private ComboBox<PriceList> priceListCombo = new ComboBox<>();
 	private Button priceListButton;
 
     public PriceListProductsView(
             ProductService productService,
-            PriceListService priceListService
+            PriceListService priceListService, RawMaterialService rawMaterialService
     ) {
         super(Product.class, "Listas de precios", productService);
         this.priceListService = priceListService;
+		this.rawMaterialService = rawMaterialService;
         priceListCombo.setItems(priceListService.findAll());
 
     }
 
     @Override
     protected ProductForm createForm() {
-        return new ProductForm();
+        return new ProductForm(rawMaterialService);
     }
 
     @Override
     protected void configureGrid() {
-
         grid.addColumn(Product::getDescription)
             .setHeader("Producto")
             .setAutoWidth(true);
@@ -85,7 +86,7 @@ public class PriceListProductsView
     @Override
     protected Component getToolbar(String title) {
 
-        priceListCombo = new ComboBox<>();
+        //priceListCombo = new ComboBox<>();
         priceListCombo.setPlaceholder("Seleccionar lista de precios");
         priceListCombo.setItemLabelGenerator(PriceList::getName);
         priceListCombo.setClearButtonVisible(true);

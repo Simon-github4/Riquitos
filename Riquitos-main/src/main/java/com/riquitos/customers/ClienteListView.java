@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 
 import com.riquitos.base.ui.AbstractListView;
 import com.riquitos.base.ui.MainLayout;
+import com.riquitos.movimientos.MovimientoListView;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -20,7 +21,7 @@ import jakarta.annotation.security.PermitAll;
 
 @Route(value = "customers", layout = MainLayout.class)
 @PageTitle("Clientes | Riquitos")
-@Menu(order = 4, icon = "vaadin:cube", title = "Clientes")
+@Menu(order = 4, icon = "vaadin:users", title = "Clientes")
 @PermitAll
 public class ClienteListView extends AbstractListView<Customer, ClienteForm, CustomerService> {
 

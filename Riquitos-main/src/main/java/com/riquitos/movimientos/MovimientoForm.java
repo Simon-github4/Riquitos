@@ -1,10 +1,11 @@
-package com.riquitos.customers;
+package com.riquitos.movimientos;
 
 import java.time.LocalDate;
 import java.util.List;
 
 import com.riquitos.base.ui.AbstractForm;
-import com.riquitos.customers.Movimiento.MovementType;
+import com.riquitos.customers.Customer;
+import com.riquitos.movimientos.Movimiento.MovementType;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.textfield.BigDecimalField;
@@ -22,25 +23,20 @@ public class MovimientoForm extends AbstractForm<Movimiento> {
     public MovimientoForm(List<Customer> clientes) {
         super(Movimiento.class);
 
-        // 1. Configurar Combo de Clientes
         cliente.setItems(clientes);
         cliente.setItemLabelGenerator(Customer::getName);
         
-        // 2. Configurar Combo de Tipos (Deuda/Pago)
         tipo.setItems(MovementType.values());
         tipo.setItemLabelGenerator(Enum::name);
 
-        // 3. Configurar Monto
         monto.setPrefixComponent(new com.vaadin.flow.component.html.Span("$"));
         
-        // 4. Configurar Fecha por defecto hoy
-        fecha.setValue(LocalDate.now());
-
         add(cliente, fecha, tipo, monto, descripcion, createButtonsLayout());
 
         // Enlace manual o automático. Como "cliente" en la clase Movimiento es un objeto Cliente,
         // y el ComboBox es <Cliente>, bindInstanceFields lo mapea automáticamente.
         binder.bindInstanceFields(this);
+
     }
     
     public void setClientes(List<Customer> clientes) {

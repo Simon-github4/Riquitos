@@ -1,1 +1,192 @@
-/* Add your styles here */
+/* ==========================================================================
+   1. FUENTES Y CONFIGURACIÓN GLOBAL
+   ========================================================================== */
+/* Importamos la fuente 'Inter' (excelente para números y tablas en ERPs) */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+html {
+    /* --- Identidad de Marca (Azul Corporativo Moderno) --- */
+    --lumo-primary-color: #006AF5;        /* Azul vibrante */
+    --lumo-primary-text-color: #006AF5;
+    --lumo-primary-color-10pct: rgba(0, 106, 245, 0.1);
+    --lumo-primary-color-50pct: rgba(0, 106, 245, 0.5);
+
+    /* --- Tipografía --- */
+    --lumo-font-family: 'Inter', sans-serif;
+    --lumo-font-size-m: 0.95rem; /* Un poco más legible */
+
+    /* --- Formas y Bordes (Aspecto moderno y suave) --- */
+    --lumo-border-radius-s: 6px;
+    --lumo-border-radius-m: 10px;
+    --lumo-border-radius-l: 16px;
+
+    /* --- Sombras personalizadas para dar profundidad --- */
+    --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-s: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    --shadow-m: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadow-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* Ajustes para Modo Oscuro (Vaadin lo detecta automático si lo activas) */
+[theme~="dark"] {
+    --lumo-primary-color: #60a5fa; /* Azul más claro para fondo oscuro */
+    --lumo-base-color: #1f2937;    /* Gris oscuro azulado, no negro puro */
+    --shadow-s: 0 1px 3px 0 rgba(0, 0, 0, 0.5);
+}
+
+/* ==========================================================================
+   2. CLASES DE UTILIDAD PARA EL LAYOUT (DASHBOARD)
+   ========================================================================== */
+
+/* Contenedor principal de las vistas (para que no se pegue a los bordes) */
+.page-view {
+    padding: var(--lumo-space-l);
+    box-sizing: border-box;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: var(--lumo-space-m);
+}
+
+/* Títulos de página modernos */
+.page-title {
+    font-size: var(--lumo-font-size-xxl);
+    font-weight: 700;
+    color: var(--lumo-header-text-color);
+    margin: 0;
+    line-height: 1.2;
+}
+
+/* Barra de herramientas (Título a la izq, Botones a la derecha) */
+.view-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--lumo-space-m);
+    margin-bottom: var(--lumo-space-m);
+    padding-bottom: 0px;
+}
+
+/* ==========================================================================
+   3. ESTILOS DE TARJETAS (CARDS & KPIs)
+   ========================================================================== */
+
+/* Estilo base para cualquier tarjeta (blanca con sombra) */
+.card {
+    background-color: var(--lumo-base-color);
+    border-radius: var(--lumo-border-radius-m);
+    box-shadow: var(--shadow-s);
+    border: 1px solid var(--lumo-contrast-5pct);
+    padding: var(--lumo-space-l);
+    box-sizing: border-box;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Efecto hover suave para tarjetas interactivas */
+.card:hover {
+    box-shadow: var(--shadow-m);
+    transform: translateY(-2px);
+}
+
+/* Estilo específico para KPIs (Números grandes) */
+.kpi-card {
+    display: flex;
+    align-items: center;
+    gap: var(--lumo-space-m);
+}
+
+.kpi-icon-container {
+    background-color: var(--lumo-primary-color-10pct);
+    color: var(--lumo-primary-color);
+    padding: var(--lumo-space-m);
+    border-radius: 50%; /* Círculo perfecto */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 48px;
+    min-height: 48px;
+}
+
+.kpi-value {
+    font-size: var(--lumo-font-size-xxl);
+    font-weight: 700;
+    color: var(--lumo-body-text-color);
+    line-height: 1;
+    margin-bottom: var(--lumo-space-xs);
+}
+
+.kpi-label {
+    font-size: var(--lumo-font-size-s);
+    color: var(--lumo-secondary-text-color);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* ==========================================================================
+   4. PERSONALIZACIÓN DE COMPONENTES VAADIN
+   ========================================================================== */
+
+/* Botones más modernos */
+vaadin-button {
+    font-weight: 600;
+    cursor: pointer;
+}
+
+/* Grillas (Tablas) más limpias */
+vaadin-grid {
+    border-radius: var(--lumo-border-radius-m);
+    border: none;
+    box-shadow: var(--shadow-s);
+    background: transparent; 
+}
+
+/* Header con color sólido de la marca y texto blanco */
+vaadin-grid::part(header-cell) {
+    background-color: var(--lumo-primary-color); /* Tu azul */
+    color: #ffffff;  /* Texto blanco para contraste */
+    font-weight: 700; /* Letra un poco más gruesa */
+    text-transform: uppercase;
+    font-size: var(--lumo-font-size-xs);
+    letter-spacing: 0.5px;
+}
+
+/* Opcional: Si quieres un separador sutil entre columnas del header */
+vaadin-grid::part(header-cell):not(:last-child) {
+    border-right: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Campos de texto más robustos */
+vaadin-text-field, vaadin-combo-box, vaadin-date-picker {
+    --lumo-text-field-size: 40px; /* Inputs un poco más altos */
+}
+
+/* ==========================================================================
+   5. UTILIDADES DE ESTADO (Badges)
+   ========================================================================== */
+.badge {
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: var(--lumo-font-size-xs);
+    font-weight: 600;
+    text-transform: uppercase;
+    display: inline-block;
+}
+
+.badge.success {
+    background-color: var(--lumo-success-color-10pct);
+    color: var(--lumo-success-text-color);
+}
+
+.badge.error {
+    background-color: var(--lumo-error-color-10pct);
+    color: var(--lumo-error-text-color);
+}
+
+.badge.pending {
+    background-color: #FFF4E5; /* Naranja muy suave */
+    color: #B95000;
+}

@@ -5,7 +5,6 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import com.riquitos.AbstractCrudService;
-import com.riquitos.entities.PriceList;
 
 @Service
 public class PriceListService extends AbstractCrudService<PriceList, Long> {
