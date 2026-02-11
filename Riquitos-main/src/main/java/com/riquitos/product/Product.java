@@ -10,11 +10,14 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Lob;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import lombok.Data;
 
 @Entity
 @Table(name = "products")
+@Data
 public class Product {
 
     @Id
@@ -23,6 +26,9 @@ public class Product {
 
     @Column(nullable = false)
     private String description;
+    
+    @Column(name = "production_unit", nullable = true)
+    private int productionUnit;
 
     @Column(name = "sku")
     private String sku;
@@ -33,6 +39,10 @@ public class Product {
 
     @OneToMany(mappedBy = "product", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductIngredient> recipe;
+    
+    @Lob
+    @Column(name = "image_data")
+    private byte[] imageData;
     
     public Product() {}
 
@@ -52,6 +62,9 @@ public class Product {
 	
 	public List<ProductIngredient> getRecipe() {return recipe;}
 	public void setRecipe(List<ProductIngredient> recipe) {this.recipe = recipe;}
+	
+	public byte[] getImageData() {return imageData;}
+	public void setImageData(byte[] imageData) {this.imageData = imageData;}
 
 	@Override
     public String toString() {

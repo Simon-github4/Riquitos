@@ -6,28 +6,31 @@ import java.util.List;
 
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.riquitos.AbstractCrudService;
 import com.riquitos.product.Product;
 import com.riquitos.product.ProductIngredient;
 import com.riquitos.production.material.RawMaterial;
-import com.riquitos.production.material.RawMaterialService;
+import com.riquitos.stock.StockMovement;
+import com.riquitos.stock.StockMovement.StockMovementType;
+import com.riquitos.stock.StockMovementService;
 
-import jakarta.transaction.Transactional;
 
 @Service
 public class ProductionBatchService extends AbstractCrudService<ProductionBatch, Long> {
 
-    private final ProductionBatchRepository batchRepository;
-    private final RawMaterialService rawMaterialService;
+	private final ProductionBatchRepository batchRepository;
+	private final StockMovementService stockMovementService;
 
-    public ProductionBatchService(ProductionBatchRepository repository, RawMaterialService rawMaterialService) {
-        super(repository);
-        this.batchRepository = repository;
-        this.rawMaterialService = rawMaterialService;
-    }
+	public ProductionBatchService(ProductionBatchRepository repository, StockMovementService stockMovementService) {
+		super(repository);
+		this.batchRepository = repository;
+		this.stockMovementService = stockMovementService;
+	}
 
     @Override
+    @Transactional(readOnly = true)
     public List<ProductionBatch> findAll(String filterText) {
         if (filterText == null || filterText.isEmpty()) {
             return repository.findAll(Sort.by(Sort.Direction.DESC, "productionDate"));
@@ -41,7 +44,8 @@ public class ProductionBatchService extends AbstractCrudService<ProductionBatch,
                  batch.getProduct().getDescription().toLowerCase().contains(filter)))
             .toList();
     }
-
+    
+    @Transactional(readOnly = true)
     public List<ProductionBatch> findByProductId(Long productId) {
         return batchRepository.findByProductId(productId);
     }
@@ -70,11 +74,29 @@ public class ProductionBatchService extends AbstractCrudService<ProductionBatch,
                    // O simplemente dejar que vaya a negativo para alertar compras
                 }
 
+                StockMovement egreso = new StockMovement();
+                egreso.setMovementDateTime(LocalDateTime.now());
+                egreso.setType(StockMovementType.EGRESO);
+                egreso.setRawMaterial(materiaPrima);
+                egreso.setQuantity(consumoTotal);
+                egreso.setProductionBatch(batch); // ← LINKEO con el batch
+                egreso.setObservations("Consumo en producción de " + producto.getDescription());
+                
+                stockMovementService.save(egreso);
+
+                /* Actualizar stock actual DEPRECATED
                 BigDecimal nuevoStock = materiaPrima.getCurrentStock().subtract(consumoTotal);
                 materiaPrima.setCurrentStock(nuevoStock);
-
-                rawMaterialService.save(materiaPrima);
+                rawMaterialService.save(materiaPrima);*/
             }
         }
+    }
+    
+    /**
+     * Obtiene todos los movimientos de stock asociados a un batch de producción
+     */
+    @Transactional(readOnly = true)
+    public List<StockMovement> obtenerMovimientosDeBatch(Long batchId) {
+        return stockMovementService.findByProductionBatchId(batchId);
     }
 }

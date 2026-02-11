@@ -33,18 +33,19 @@ public class ProductView extends AbstractListView<Product, ProductForm, ProductS
 
     @Override
     protected void configureGrid() {
-        // 1. Columna SKU: Ancho fijo porque los códigos suelen ser cortos
         grid.addColumn(Product::getSku)
             .setHeader("SKU")
             .setWidth("200px")
             .setFlexGrow(0); // No se estira
 
-        // 2. Columna Descripción: Ocupa el espacio sobrante
         grid.addColumn(Product::getDescription)
             .setHeader("Descripción")
             .setFlexGrow(1); // Se estira para llenar la pantalla
 
-        // 3. Columna Precio: Formato Moneda Argentina
+        grid.addColumn(Product::getProductionUnit)
+        .setHeader("Unidades x Bolson / Caja")
+        .setWidth("80px"); 
+        
         grid.addColumn(new NumberRenderer<>(
                 Product::getCostPrice,
                 NumberFormat.getCurrencyInstance(new Locale("es", "AR")) // Formato $ 1.234,50

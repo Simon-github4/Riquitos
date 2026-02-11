@@ -22,8 +22,7 @@ public class RawMaterialService extends AbstractCrudService<RawMaterial, Long> {
     public RawMaterial save(RawMaterial entity) {
 		if(entity.getId() == null)
 			entity.setCurrentStock(BigDecimal.ZERO);
-		return
-		super.save(entity);
+		return super.save(entity);
 	}
     @Override
     public List<RawMaterial> findAll(String filterText) {

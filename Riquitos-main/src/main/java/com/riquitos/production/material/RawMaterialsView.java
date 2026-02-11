@@ -57,14 +57,14 @@ public class RawMaterialsView extends AbstractListView<RawMaterial, RawMaterialF
             return span;
         })).setHeader("Stock Actual").setSortable(false).setWidth("150px").setFlexGrow(0);
 
-        grid.addComponentColumn(material -> {
+        /*grid.addComponentColumn(material -> {
             Button addStockBtn = new Button(VaadinIcon.PLUS.create());
             addStockBtn.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_PRIMARY);
             addStockBtn.setTooltipText("Registrar compra / Ingreso de stock");
             addStockBtn.addClickListener(e -> abrirDialogoIngreso(material));
             return addStockBtn;
         }).setHeader("Ingresar").setWidth("100px");
-
+         AHORA DESDE STOCK MOVEMENTS*/
         grid.asSingleSelect().addValueChangeListener(event ->
             editItem(event.getValue(), true)
         );

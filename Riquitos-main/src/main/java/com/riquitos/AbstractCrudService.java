@@ -21,7 +21,8 @@ public abstract class AbstractCrudService<T, ID> {
         return repository.findAll();
         //TODO: Cambiar a paginado cuando se necesite
     }
-
+    
+    @Transactional(readOnly = true)
     public Optional<T> findById(ID id) {
         return repository.findById(id);
     }
@@ -47,5 +48,6 @@ public abstract class AbstractCrudService<T, ID> {
 
     // Método abstracto para obligar a las clases hijas a implementar la búsqueda
     // ya que cada entidad filtra por campos distintos (nombre, código, etc.)
+    @Transactional(readOnly = true)
     public abstract List<T> findAll(String filterText);
 }
