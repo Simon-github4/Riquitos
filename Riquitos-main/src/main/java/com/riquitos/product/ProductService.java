@@ -2,6 +2,7 @@ package com.riquitos.product;
 
 import java.util.List;
 
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.riquitos.AbstractCrudService;
@@ -24,4 +25,7 @@ public class ProductService extends AbstractCrudService<Product, Long> {
             return productRepository.findByDescriptionContainingIgnoreCase(filterText);
         }
     }
+	public List<Product> findAllByDescAsc() {
+		return repository.findAll(Sort.by(Sort.Direction.ASC, "description"));
+	}
 }

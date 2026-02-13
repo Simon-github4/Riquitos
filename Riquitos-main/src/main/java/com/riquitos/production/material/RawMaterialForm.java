@@ -20,8 +20,7 @@ public class RawMaterialForm extends AbstractForm<RawMaterial> {
         add(
             name,
             unit, 
-            currentStock, 
-            createButtonsLayout()
+            currentStock
         );
         currentStock.setReadOnly(true);
         

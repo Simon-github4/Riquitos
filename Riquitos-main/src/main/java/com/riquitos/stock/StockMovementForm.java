@@ -31,20 +31,18 @@ public class StockMovementForm extends AbstractForm<StockMovement> {
 
     public StockMovementForm(List<RawMaterial> materials) {
         super(StockMovement.class);
-        
+        setWidth("65vh");
         configureFields(materials);
         
-        // Organizar el layout (FormLayout ya heredado de AbstractForm)
         add(
             type,
             rawMaterial,
             //stockStatusPreview,
             quantity,
             movementDateTime,
-            observations,
-            createButtonsLayout()
+            observations
         );
-
+        
         // No mostramos el botón de borrar para movimientos de stock (por auditoría)
         showButtonDelete(false);
     }

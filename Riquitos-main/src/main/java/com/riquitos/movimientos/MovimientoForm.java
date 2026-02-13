@@ -31,7 +31,7 @@ public class MovimientoForm extends AbstractForm<Movimiento> {
 
         monto.setPrefixComponent(new com.vaadin.flow.component.html.Span("$"));
         
-        add(cliente, fecha, tipo, monto, descripcion, createButtonsLayout());
+        add(cliente, fecha, tipo, monto, descripcion);
 
         // Enlace manual o automático. Como "cliente" en la clase Movimiento es un objeto Cliente,
         // y el ComboBox es <Cliente>, bindInstanceFields lo mapea automáticamente.

@@ -71,93 +71,93 @@ public class StockMovementView extends VerticalLayout {
     }
 
     private void configureGrid() {
-    grid.addColumn(movement -> movement.getMovementDateTime() != null ? 
-            movement.getMovementDateTime().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")) : "N/A")
-        .setHeader("Fecha")
-        .setWidth("160px") 
-        .setFlexGrow(0)
-        .setSortable(true);
-
-    grid.addComponentColumn(movement -> {
-        HorizontalLayout badgeLayout = new HorizontalLayout();
-        badgeLayout.setSpacing(true); // Un poco de aire entre icono y texto
-        badgeLayout.setAlignItems(Alignment.CENTER);
-        
-        StockMovementType type = movement.getType();
-        if (type != null) {
-            Icon icon;
-            Span badge = new Span();
-            switch (type) {
-                case INGRESO:
-                    icon = VaadinIcon.ARROW_DOWN.create();
-                    icon.getStyle().set("color", "var(--lumo-success-color)");
-                    badge.setText("INGRESO");
-                    badge.getElement().getThemeList().add("badge success");
-                    badgeLayout.add(icon, badge);
-                    break;
-                case EGRESO:
-                    icon = VaadinIcon.ARROW_UP.create();
-                    icon.getStyle().set("color", "var(--lumo-error-color)");
-                    badge.setText("EGRESO");
-                    badge.getElement().getThemeList().add("badge error");
-                    badgeLayout.add(icon, badge);
-                    break;
-                case AJUSTE:
-                    icon = VaadinIcon.EDIT.create();
-                    icon.getStyle().set("color", "var(--lumo-contrast-60pct)");
-                    badge.setText("AJUSTE");
-                    badge.getElement().getThemeList().add("badge contrast");
-                    badgeLayout.add(icon, badge);
-                    break;
-            }
-        }
-        return badgeLayout;
-    }).setHeader("Tipo")
-      .setWidth("140px")
-      .setFlexGrow(0);
-
-    grid.addColumn(movement -> movement.getRawMaterial() != null ? movement.getRawMaterial().getName() : "N/A")
-        .setHeader("Materia Prima")
-        .setWidth("200px")
-        .setSortable(true)
-        .setAutoWidth(true)
-        .setFlexGrow(0);
-
-    grid.addComponentColumn(movement -> {
-        Div quantityDiv = new Div();
-        if (movement.getQuantity() != null) {
-            String sign = "";
-            String color = "inherit";
-            if (movement.getType() == StockMovementType.INGRESO) { sign = "+"; color = "var(--lumo-success-text-color)"; }
-            else if (movement.getType() == StockMovementType.EGRESO) { sign = "-"; color = "var(--lumo-error-text-color)"; }
-            
-            String unit = (movement.getRawMaterial() != null) ? " " + movement.getRawMaterial().getUnit() : "";
-            quantityDiv.setText(sign + movement.getQuantity() + unit);
-            quantityDiv.getStyle().set("color", color).set("font-weight", "600").set("text-align", "right");
-        }
-        return quantityDiv;
-    }).setHeader("Cantidad")
-      .setTextAlign(ColumnTextAlign.END) // Alineación contable
-      .setWidth("120px")
-      .setFlexGrow(0);
-
-    grid.addColumn(movement -> {
-        if (movement.getProductionBatch() != null) {
-            return "Lote #" + movement.getProductionBatch().getId();
-        }
-        return "-";
-    }).setHeader("Ref.")
-      .setWidth("125px")
-      .setFlexGrow(0);
-
-    grid.addColumn(StockMovement::getObservations)
-        .setHeader("Observaciones")
-        .setAutoWidth(true)
-        .setFlexGrow(2); // Doble de prioridad para ocupar el resto del monitor
-
-    grid.setSizeFull();
-    grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_COMPACT, GridVariant.LUMO_NO_BORDER);
-}
+	    grid.addColumn(movement -> movement.getMovementDateTime() != null ? 
+	            movement.getMovementDateTime().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")) : "N/A")
+	        .setHeader("Fecha")
+	        .setWidth("160px") 
+	        .setFlexGrow(0)
+	        .setSortable(true);
+	
+	    grid.addComponentColumn(movement -> {
+	        HorizontalLayout badgeLayout = new HorizontalLayout();
+	        badgeLayout.setSpacing(true); // Un poco de aire entre icono y texto
+	        badgeLayout.setAlignItems(Alignment.CENTER);
+	        
+	        StockMovementType type = movement.getType();
+	        if (type != null) {
+	            Icon icon;
+	            Span badge = new Span();
+	            switch (type) {
+	                case INGRESO:
+	                    icon = VaadinIcon.ARROW_DOWN.create();
+	                    icon.getStyle().set("color", "var(--lumo-success-color)");
+	                    badge.setText("INGRESO");
+	                    badge.getElement().getThemeList().add("badge success");
+	                    badgeLayout.add(icon, badge);
+	                    break;
+	                case EGRESO:
+	                    icon = VaadinIcon.ARROW_UP.create();
+	                    icon.getStyle().set("color", "var(--lumo-error-color)");
+	                    badge.setText("EGRESO");
+	                    badge.getElement().getThemeList().add("badge error");
+	                    badgeLayout.add(icon, badge);
+	                    break;
+	                case AJUSTE:
+	                    icon = VaadinIcon.EDIT.create();
+	                    icon.getStyle().set("color", "var(--lumo-contrast-60pct)");
+	                    badge.setText("AJUSTE");
+	                    badge.getElement().getThemeList().add("badge contrast");
+	                    badgeLayout.add(icon, badge);
+	                    break;
+	            }
+	        }
+	        return badgeLayout;
+	    }).setHeader("Tipo")
+	      .setWidth("140px")
+	      .setFlexGrow(0);
+	
+	    grid.addColumn(movement -> movement.getRawMaterial() != null ? movement.getRawMaterial().getName() : "N/A")
+	        .setHeader("Materia Prima")
+	        .setWidth("200px")
+	        .setSortable(true)
+	        .setAutoWidth(true)
+	        .setFlexGrow(0);
+	
+	    grid.addComponentColumn(movement -> {
+	        Div quantityDiv = new Div();
+	        if (movement.getQuantity() != null) {
+	            String sign = "";
+	            String color = "inherit";
+	            if (movement.getType() == StockMovementType.INGRESO) { sign = "+"; color = "var(--lumo-success-text-color)"; }
+	            else if (movement.getType() == StockMovementType.EGRESO) { sign = "-"; color = "var(--lumo-error-text-color)"; }
+	            
+	            String unit = (movement.getRawMaterial() != null) ? " " + movement.getRawMaterial().getUnit() : "";
+	            quantityDiv.setText(sign + movement.getQuantity() + unit);
+	            quantityDiv.getStyle().set("color", color).set("font-weight", "600").set("text-align", "right");
+	        }
+	        return quantityDiv;
+	    }).setHeader("Cantidad")
+	      .setTextAlign(ColumnTextAlign.END) // Alineación contable
+	      .setWidth("120px")
+	      .setFlexGrow(0);
+	
+	    grid.addColumn(movement -> {
+	        if (movement.getProductionBatch() != null) {
+	            return "Lote #" + movement.getProductionBatch().getId();
+	        }
+	        return "-";
+	    }).setHeader("Ref.")
+	      .setWidth("125px")
+	      .setFlexGrow(0);
+	
+	    grid.addColumn(StockMovement::getObservations)
+	        .setHeader("Observaciones")
+	        .setAutoWidth(true)
+	        .setFlexGrow(2); // Doble de prioridad para ocupar el resto del monitor
+	
+	    grid.setSizeFull();
+	    grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_COMPACT, GridVariant.LUMO_NO_BORDER);
+    }
 
     private void configureFilters() {
         filterText.setPlaceholder("Buscar en observaciones...");
@@ -209,6 +209,7 @@ public class StockMovementView extends VerticalLayout {
         filters.setAlignItems(Alignment.END);
         filters.setPadding(true);
         filters.setSpacing(true);
+        filters.setWrap(true);
         
         return filters;
     }

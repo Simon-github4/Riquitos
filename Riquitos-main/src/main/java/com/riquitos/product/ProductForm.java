@@ -23,6 +23,7 @@ import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.Scroller;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.BigDecimalField;
 import com.vaadin.flow.component.textfield.IntegerField;
@@ -55,13 +56,11 @@ public class ProductForm extends AbstractForm<Product> {
     public ProductForm(RawMaterialService rawMaterialService) {
         super(Product.class);
         this.rawMaterialService = rawMaterialService;
-
-        //sku.setWidthFull();
         
         costPrice.setPrefixComponent(new Span("$")); 
         costPrice.setLocale(new Locale("es", "AR")); 
-        costPrice.setPlaceholder("0,00");
-
+        costPrice.setPlaceholder("0.00");
+        
         configureImageUpload();
         configureRecipeControls();
         configureRecipeGrid();
@@ -81,31 +80,34 @@ public class ProductForm extends AbstractForm<Product> {
             createIngredientInputLayout(), 
             recipeGrid                    
         );
-
-        add(
-            sku, 
-            productionUnit,
-            description, 
-            costPrice,
-            imageSection,
-            recipeSection, 
-            createButtonsLayout()
-        );
-        // ocupe todo el ancho (2 columnas), para que no se ponga al costado de nada.
+        
+        HorizontalLayout rowContainer = new HorizontalLayout(sku, productionUnit, new IntegerField("gr"));
+        rowContainer.setSpacing(true);
+        rowContainer.setDefaultVerticalComponentAlignment(Alignment.BASELINE);
+        sku.setMinWidth("0");
+        productionUnit.setMinWidth("0");
+        (rowContainer.getComponentAt(2)).getStyle().set("min-width", "0");
+        
+        add(rowContainer);
+        addFormRow(description, costPrice);
+        add(imageSection, recipeSection);
+        
+        setColspan(rowContainer, 2);
         setColspan(imageSection, 2); 
         setColspan(recipeSection, 2); 
+        
     }
 
     // --- CONFIGURACIÓN UI DE IMAGEN ---
     private void configureImageUpload() {
-    	imageUpload.setUploadButton(new Button("Seleccionar Imagen"));
+    	imageUpload.setUploadButton(new Button(VaadinIcon.UPLOAD.create()));
         imageUpload.setAcceptedFileTypes("image/*");
         imageUpload.setDropLabel(new Span("Arrastra una imagen aquí o haz clic para seleccionar"));
         imageUpload.setMaxFileSize(5 * 1024 * 1024); // 5MB max
         imageUpload.setWidthFull();
 
         previewImage.setWidth("150px");
-        previewImage.setHeight("150px");
+        previewImage.setHeight("100px");
         previewImage.getStyle().set("object-fit", "cover");
         previewImage.getStyle().set("border-radius", "8px");
         previewImage.getStyle().set("border", "1px solid #e0e0e0");
@@ -155,7 +157,7 @@ public class ProductForm extends AbstractForm<Product> {
         uploadLayout.setSpacing(false);
         uploadLayout.setPadding(false);
         uploadLayout.add(imageUpload);
-        uploadLayout.setWidth("80%");
+        uploadLayout.setWidth("100%");
         
         VerticalLayout previewLayout = new VerticalLayout();
         previewLayout.setSpacing(false);
@@ -176,7 +178,7 @@ public class ProductForm extends AbstractForm<Product> {
         rawMaterialCombo.setPlaceholder("Seleccionar insumo...");
         rawMaterialCombo.setWidth("50%");
 
-        quantityField.setPlaceholder("Ej: 0,200");
+        quantityField.setPlaceholder("Ej: 0.25");
         quantityField.setWidth("30%");
 
         addIngredientBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
@@ -185,7 +187,7 @@ public class ProductForm extends AbstractForm<Product> {
 
     private void configureRecipeGrid() {
         recipeGrid.addClassName("recipe-grid");
-        recipeGrid.setHeight("200px"); // Altura fija para la sub-tabla
+        recipeGrid.setHeight("180px");
         recipeGrid.addThemeVariants(GridVariant.LUMO_COMPACT, GridVariant.LUMO_ROW_STRIPES);
 
         recipeGrid.addColumn(pi -> pi.getRawMaterial().getName()).setHeader("Insumo");

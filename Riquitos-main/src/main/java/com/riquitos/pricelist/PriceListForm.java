@@ -22,8 +22,7 @@ public class PriceListForm extends AbstractForm<PriceList>{
         // Agregamos los componentes visuales
         add(
             name, 
-            marginPercentage, 
-            createButtonsLayout() // Este método viene del padre
+            marginPercentage
         );
 	}
 

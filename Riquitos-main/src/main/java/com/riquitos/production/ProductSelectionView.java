@@ -72,7 +72,7 @@ public class ProductSelectionView extends VerticalLayout {
     private void loadProducts() {
         productsContainer.removeAll();
         
-        List<Product> products = productService.findAll();
+        List<Product> products = productService.findAllByDescAsc();
         
         for (Product product : products) {
             Div productCard = createProductCard(product);
@@ -177,24 +177,21 @@ public class ProductSelectionView extends VerticalLayout {
     private void openQuantityDialog(Product product) {
         Dialog dialog = new Dialog();
         dialog.setHeaderTitle("Registrar Producción");
+        dialog.setMinWidth("20em");
         
         VerticalLayout layout = new VerticalLayout();
         layout.setSpacing(true);
         layout.setPadding(true);
         
-        // Información del producto
         Div productInfo = new Div();
         productInfo.setText("Producto: " + product.getDescription());
         productInfo.getStyle().set("font-weight", "bold");
-        productInfo.getStyle().set("margin-bottom", "16px");
         
-        // Campo para cantidad
-        BigDecimalField quantityField = new BigDecimalField("Cantidad Producida");
+        BigDecimalField quantityField = new BigDecimalField("Bolsones / Cajas Producidas");
         quantityField.setPlaceholder("0.00");
         quantityField.setWidthFull();
         quantityField.setRequired(true);
         
-        // Botones
         Button confirmBtn = new Button("Confirmar", e -> {
             if (quantityField.getValue() == null || quantityField.getValue().compareTo(BigDecimal.ZERO) <= 0) {
                 Notification.show("Ingrese una cantidad válida", 3000, Notification.Position.MIDDLE)
@@ -212,7 +209,7 @@ public class ProductSelectionView extends VerticalLayout {
         Button cancelBtn = new Button("Cancelar", e -> dialog.close());
         cancelBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
         
-        com.vaadin.flow.component.orderedlayout.HorizontalLayout buttonLayout = new com.vaadin.flow.component.orderedlayout.HorizontalLayout(confirmBtn, cancelBtn);
+        HorizontalLayout buttonLayout = new HorizontalLayout(confirmBtn, cancelBtn);
         buttonLayout.setJustifyContentMode(JustifyContentMode.END);
         buttonLayout.setWidthFull();
         

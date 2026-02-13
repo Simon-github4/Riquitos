@@ -18,7 +18,7 @@ public class ClienteForm extends AbstractForm<Customer> {
         email.setClearButtonVisible(true);
         
         // Agregamos los componentes al FormLayout (clase padre)
-        add(name, email, phone, createButtonsLayout());
+        add(name, email, phone);
         
         // Enlace automático: Los nombres de las variables (nombre, email...) 
         // deben coincidir con los atributos de la entidad Cliente

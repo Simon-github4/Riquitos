@@ -8,6 +8,7 @@ import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.notification.NotificationVariant;
+import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
@@ -36,7 +37,7 @@ public abstract class AbstractListView<T, F extends AbstractForm<T>, S extends A
         setSizeFull();
         setPadding(false);
         setSpacing(false);
-        getStyle().setOverflow(Style.Overflow.HIDDEN);
+        getStyle().setOverflow(Style.Overflow.SCROLL);
         
     }
     
@@ -65,7 +66,9 @@ public abstract class AbstractListView<T, F extends AbstractForm<T>, S extends A
     // ----------------------------------------------
 
     private void configureFormLogic() {
-        form.setWidth("25em");
+    	form.setWidth("100%");
+        form.setMaxWidth("30em");
+        form.setHeightFull();
         //form.setMinWidth("400px"); 
         
         // GUARDAR y BORRAR: Usa el servicio genérico directamente
@@ -103,7 +106,8 @@ public abstract class AbstractListView<T, F extends AbstractForm<T>, S extends A
         HorizontalLayout content = new HorizontalLayout(grid, form);
         content.setFlexGrow(2, grid);
         content.setFlexGrow(1, form);
-        content.setFlexShrink(0, form);
+        //content.setFlexShrink(0, form);
+
         content.addClassNames("content");
         content.setSizeFull();
         return content;
