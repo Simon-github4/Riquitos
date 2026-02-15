@@ -227,7 +227,7 @@ public class ProductSelectionView extends VerticalLayout {
             Notification.show(
                 "Producción registrada: " + product.getDescription() + " x " + quantity, 
                 3000, 
-                Notification.Position.BOTTOM_CENTER
+                Notification.Position.MIDDLE
             ).addThemeVariants(NotificationVariant.LUMO_SUCCESS);
             
         } catch (Exception e) {

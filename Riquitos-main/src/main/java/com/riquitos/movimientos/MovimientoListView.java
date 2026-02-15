@@ -22,7 +22,7 @@ import jakarta.annotation.security.PermitAll;
 
 @Route(value = "movimientos", layout = MainLayout.class)
 @PageTitle("Movimientos | Riquitos")
-@Menu(order = 5, icon = "vaadin:exchange", title = "Movimientos")
+@Menu(order = 5, icon = "vaadin:exchange", title = "Ingresos/Egresos")
 @PermitAll
 public class MovimientoListView extends AbstractListView<Movimiento, MovimientoForm, MovimientoService> implements HasUrlParameter<Long> {
 

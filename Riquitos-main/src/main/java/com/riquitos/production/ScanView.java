@@ -32,7 +32,7 @@ import jakarta.annotation.security.PermitAll;
 @PageTitle("QR Scanner")
 @Route(value = "scan-qr", layout = MainLayout.class)
 @NpmPackage(value = "html5-qrcode", version = "2.3.8")
-@Menu(order = 3, icon = "vaadin:qrcode", title = "QR")
+@Menu(order = 3, icon = "vaadin:qrcode", title = "Producción por QR")
 @PermitAll
 public class ScanView extends VerticalLayout {
 

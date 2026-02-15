@@ -3,6 +3,7 @@ package com.riquitos.product;
 import java.math.BigDecimal;
 import java.util.List;
 
+import jakarta.persistence.Basic;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -28,8 +29,11 @@ public class Product {
     private String description;
     
     @Column(name = "production_unit", nullable = true)
-    private int productionUnit;
+    private int unitiesPerBagOrBox;
 
+    @Column(name = "net_weight", precision = 12, scale = 4)
+    private int netWeight;
+    
     @Column(name = "sku")
     private String sku;
 
@@ -42,6 +46,7 @@ public class Product {
     
     @Lob
     @Column(name = "image_data")
+    @Basic(fetch = FetchType.LAZY) // Intenta no cargarla a menos que se pida explícitamente
     private byte[] imageData;
     
     public Product() {}

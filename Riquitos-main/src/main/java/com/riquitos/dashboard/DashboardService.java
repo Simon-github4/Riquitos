@@ -46,7 +46,7 @@ public class DashboardService {
                 .toList();
         
         return lotesHoy.stream()
-                .mapToInt(batch -> batch.getQuantityProduced().intValue())
+                .mapToInt(batch -> batch.getUnitiesProduced().intValue())
                 .sum();
     }
 
@@ -60,7 +60,7 @@ public class DashboardService {
                 .toList();
         
         return lotesSemana.stream()
-                .mapToInt(batch -> batch.getQuantityProduced().intValue())
+                .mapToInt(batch -> batch.getUnitiesProduced().intValue())
                 .sum();
     }
 

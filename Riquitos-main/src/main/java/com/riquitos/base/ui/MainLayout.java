@@ -50,10 +50,68 @@ public final class MainLayout extends AppLayout {
         return header;
     }
 
-    private SideNav createSideNav() {
+    /*private SideNav createSideNav() {
         var nav = new SideNav();
         nav.addClassNames(LumoUtility.Margin.Horizontal.MEDIUM);
         MenuConfiguration.getMenuEntries().forEach(entry -> nav.addItem(createSideNavItem(entry)));
+        return nav;
+    }*/
+    private SideNav createSideNav() {
+        SideNav nav = new SideNav();
+        nav.addClassNames(LumoUtility.Margin.Horizontal.MEDIUM);
+
+        Icon icon = VaadinIcon.FACTORY.create();
+        icon.addClassName(LumoUtility.TextColor.PRIMARY); // Usa el color primario del tema
+        
+        SideNavItem seccionProduccion = new SideNavItem("Producción");
+        seccionProduccion.setPrefixComponent(icon); // Ícono de la carpeta
+
+        icon = VaadinIcon.BRIEFCASE.create();
+        icon.addClassName(LumoUtility.TextColor.PRIMARY); // Usa el color primario del tema
+
+        SideNavItem seccionComercial = new SideNavItem("Comercial");
+        seccionComercial.setPrefixComponent(icon);
+
+        icon = VaadinIcon.STORAGE.create();
+        icon.addClassName(LumoUtility.TextColor.PRIMARY); // Usa el color primario del tema
+        
+        SideNavItem seccionInventario = new SideNavItem("Inventario");
+        seccionInventario.setPrefixComponent(icon);
+
+        MenuConfiguration.getMenuEntries().forEach(entry -> {
+            SideNavItem item = createSideNavItem(entry);
+            String titulo = entry.title();
+
+            if (titulo.equals("Lotes de Producción") || 
+                titulo.startsWith("Producción por")) {
+                
+                seccionProduccion.addItem(item); // Agrega dentro de Producción
+                
+            } else if (titulo.equals("Clientes") || 
+                       titulo.equals("Listas de precios") || 
+                       titulo.equals("Ingresos/Egresos")) {
+                
+                seccionComercial.addItem(item); // Agrega dentro de Comercial
+                
+            } else if (titulo.equals("Insumos") || 
+                       titulo.equals("Kardex de Stock")||
+                       titulo.equals("Productos")) {
+                       
+                seccionInventario.addItem(item); // Agrega dentro de Inventario
+                
+            } else {
+                // Si no coincide con ninguno, va a la raíz (ej: Dashboard, QR)
+            	Component icon2 = item.getPrefixComponent();
+                if (icon2 != null) 
+                    icon2.addClassName(LumoUtility.TextColor.PRIMARY);
+                nav.addItem(item);
+           }
+        });
+
+        if (seccionInventario.getItems().size() > 0) nav.addItem(seccionInventario);
+        if (seccionProduccion.getItems().size() > 0) nav.addItem(seccionProduccion);
+        if (seccionComercial.getItems().size() > 0) nav.addItem(seccionComercial);
+
         return nav;
     }
 

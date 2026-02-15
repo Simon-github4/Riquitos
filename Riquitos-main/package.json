@@ -93,10 +93,9 @@
     "proj4": "$proj4",
     "@vaadin/vaadin-themable-mixin": "$@vaadin/vaadin-themable-mixin",
     "@vaadin/vaadin-lumo-styles": "$@vaadin/vaadin-lumo-styles",
-    "@vaadin/cookie-consent": "24.9.4",
     "@vaadin/aura": "$@vaadin/aura",
     "ol": "$ol",
-    "@vaadin/router": "2.0.1",
+    "html5-qrcode": "$html5-qrcode",
     "@vaadin/a11y-base": "25.0.1",
     "@vaadin/accordion": "25.0.1",
     "@vaadin/app-layout": "25.0.1",
@@ -153,6 +152,7 @@
     "@vaadin/time-picker": "25.0.1",
     "@vaadin/tooltip": "25.0.1",
     "@vaadin/upload": "25.0.1",
+    "@vaadin/router": "2.0.1",
     "@vaadin/vertical-layout": "25.0.1",
     "@vaadin/virtual-list": "25.0.1",
     "@vaadin/board": "25.0.1",
@@ -161,7 +161,6 @@
     "@vaadin/dashboard": "25.0.1",
     "@vaadin/grid-pro": "25.0.1",
     "@vaadin/map": "25.0.1",
-    "@vaadin/rich-text-editor": "25.0.1",
-    "html5-qrcode": "$html5-qrcode"
+    "@vaadin/rich-text-editor": "25.0.1"
   }
 }

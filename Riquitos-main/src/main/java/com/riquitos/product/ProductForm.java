@@ -37,7 +37,8 @@ public class ProductForm extends AbstractForm<Product> {
     TextField sku = new TextField("SKU / Código");
     TextField description = new TextField("Descripción");
     BigDecimalField costPrice = new BigDecimalField("Precio Costo");
-    IntegerField productionUnit = new IntegerField("Unidades x Bolson/Caja");
+    IntegerField unitiesPerBagOrBox = new IntegerField("Unidades x Bolson/Caja");
+    IntegerField netWeight = new IntegerField("Peso en Gramos (g)", "Ej: 250 para 250g");
 
     // --- CAMPO PARA IMAGEN ---
     private final MemoryBuffer imageBuffer = new MemoryBuffer();
@@ -81,11 +82,11 @@ public class ProductForm extends AbstractForm<Product> {
             recipeGrid                    
         );
         
-        HorizontalLayout rowContainer = new HorizontalLayout(sku, productionUnit, new IntegerField("gr"));
+        HorizontalLayout rowContainer = new HorizontalLayout(sku, unitiesPerBagOrBox, netWeight);
         rowContainer.setSpacing(true);
         rowContainer.setDefaultVerticalComponentAlignment(Alignment.BASELINE);
         sku.setMinWidth("0");
-        productionUnit.setMinWidth("0");
+        unitiesPerBagOrBox.setMinWidth("0");
         (rowContainer.getComponentAt(2)).getStyle().set("min-width", "0");
         
         add(rowContainer);

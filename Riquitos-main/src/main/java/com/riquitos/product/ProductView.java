@@ -35,24 +35,31 @@ public class ProductView extends AbstractListView<Product, ProductForm, ProductS
     protected void configureGrid() {
         grid.addColumn(Product::getSku)
             .setHeader("SKU")
-            .setWidth("200px")
-            .setFlexGrow(0); // No se estira
+            .setWidth("170px")
+            .setFlexGrow(0); 
 
         grid.addColumn(Product::getDescription)
             .setHeader("Descripción")
-            .setFlexGrow(1); // Se estira para llenar la pantalla
+            .setFlexGrow(1); 
 
-        grid.addColumn(Product::getProductionUnit)
+        grid.addColumn(Product::getNetWeight)
+        .setHeader("Peso (g) x unidad")
+        .setWidth("200px")
+        .setFlexGrow(0); 
+        
+        grid.addColumn(Product::getUnitiesPerBagOrBox)
         .setHeader("Unidades x Bolson / Caja")
-        .setWidth("80px"); 
+        .setWidth("200px")
+        .setFlexGrow(0); 
+      
         
         grid.addColumn(new NumberRenderer<>(
                 Product::getCostPrice,
                 NumberFormat.getCurrencyInstance(new Locale("es", "AR")) // Formato $ 1.234,50
             ))
             .setHeader("Costo")
-            .setWidth("140px");
-            //.setFlexGrow(0);
+            .setWidth("180px")
+            .setFlexGrow(0);
             
         grid.asSingleSelect().addValueChangeListener(e -> editItem(e.getValue(), true));
     }

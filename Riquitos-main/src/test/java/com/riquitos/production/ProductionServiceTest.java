@@ -64,7 +64,7 @@ class ProductionServiceTest {
         ProductionBatch savedBatch = new ProductionBatch();
         savedBatch.setId(1L);
         savedBatch.setProduct(testProduct);
-        savedBatch.setQuantityProduced(cantidadProducida);
+        savedBatch.setUnitiesProduced(cantidadProducida);
         savedBatch.setProductionDate(LocalDateTime.now());
         
         when(productionBatchService.save(any(ProductionBatch.class))).thenReturn(savedBatch);
@@ -73,7 +73,7 @@ class ProductionServiceTest {
         
         verify(productionBatchService).save(argThat(batch -> 
             batch.getProduct().equals(testProduct) &&
-            batch.getQuantityProduced().equals(cantidadProducida) &&
+            batch.getUnitiesProduced().equals(cantidadProducida) &&
             batch.getProductionDate() != null
         ));
         

@@ -25,7 +25,8 @@ public class ProductionBatch {
     @JoinColumn(name = "product_id")
     private Product product;
 
-    private BigDecimal quantityProduced;
+    private BigDecimal unitiesProduced;
+    private BigDecimal bagsOrBoxProduced;
 
     public ProductionBatch() {}
 
@@ -36,6 +37,12 @@ public class ProductionBatch {
     public void setProductionDate(LocalDateTime productionDate) { this.productionDate = productionDate; }
     public Product getProduct() { return product; }
     public void setProduct(Product product) { this.product = product; }
-    public BigDecimal getQuantityProduced() { return quantityProduced; }
-    public void setQuantityProduced(BigDecimal quantityProduced) { this.quantityProduced = quantityProduced; }
+    public BigDecimal getUnitiesProduced() { return unitiesProduced; }
+    public void setUnitiesProduced(BigDecimal quantityProduced) { this.unitiesProduced = quantityProduced; }
+	public BigDecimal getBagsOrBoxProduced() {
+		return bagsOrBoxProduced;
+	}
+	public void setBagsOrBoxProduced(BigDecimal bagsOrBoxProduced) {
+		this.bagsOrBoxProduced = bagsOrBoxProduced;
+	}
 }

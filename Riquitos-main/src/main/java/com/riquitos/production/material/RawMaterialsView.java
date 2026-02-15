@@ -41,7 +41,7 @@ public class RawMaterialsView extends AbstractListView<RawMaterial, RawMaterialF
     protected void configureGrid() {
         grid.addClassName("raw-material-grid");
         grid.addColumn(RawMaterial::getName).setHeader("Nombre").setSortable(true).setAutoWidth(true);
-        grid.addColumn(RawMaterial::getUnit).setHeader("Unidad").setSortable(true).setWidth("100px").setFlexGrow(0);
+        grid.addColumn(RawMaterial::getUnit).setHeader("Unidad").setSortable(true).setAutoWidth(true);
 
         grid.addColumn(new ComponentRenderer<>(material -> {
             BigDecimal stock = material.getCurrentStock();
@@ -55,7 +55,7 @@ public class RawMaterialsView extends AbstractListView<RawMaterial, RawMaterialF
             			span.getElement().getThemeList().add("badge success"); 
             
             return span;
-        })).setHeader("Stock Actual").setSortable(false).setWidth("150px").setFlexGrow(0);
+        })).setHeader("Stock Actual").setSortable(false).setAutoWidth(true);
 
         /*grid.addComponentColumn(material -> {
             Button addStockBtn = new Button(VaadinIcon.PLUS.create());

@@ -30,7 +30,7 @@ class ProductionBatchTest {
         assertNull(nuevoBatch.getId());
         assertNull(nuevoBatch.getProductionDate());
         assertNull(nuevoBatch.getProduct());
-        assertNull(nuevoBatch.getQuantityProduced());
+        assertNull(nuevoBatch.getUnitiesProduced());
     }
 
     @Test
@@ -42,47 +42,47 @@ class ProductionBatchTest {
         batch.setId(expectedId);
         batch.setProductionDate(expectedDate);
         batch.setProduct(testProduct);
-        batch.setQuantityProduced(expectedQuantity);
+        batch.setUnitiesProduced(expectedQuantity);
         
         assertEquals(expectedId, batch.getId());
         assertEquals(expectedDate, batch.getProductionDate());
         assertEquals(testProduct, batch.getProduct());
-        assertEquals(expectedQuantity, batch.getQuantityProduced());
+        assertEquals(expectedQuantity, batch.getUnitiesProduced());
     }
 
     @Test
     void testProduccionValida() {
         batch.setProduct(testProduct);
-        batch.setQuantityProduced(new BigDecimal("100"));
+        batch.setUnitiesProduced(new BigDecimal("100"));
         batch.setProductionDate(LocalDateTime.now());
         
         assertNotNull(batch.getProduct());
-        assertNotNull(batch.getQuantityProduced());
-        assertTrue(batch.getQuantityProduced().compareTo(BigDecimal.ZERO) > 0);
+        assertNotNull(batch.getUnitiesProduced());
+        assertTrue(batch.getUnitiesProduced().compareTo(BigDecimal.ZERO) > 0);
     }
 
     @Test
     void testCantidadCero() {
-        batch.setQuantityProduced(BigDecimal.ZERO);
+        batch.setUnitiesProduced(BigDecimal.ZERO);
         
-        assertEquals(BigDecimal.ZERO, batch.getQuantityProduced());
+        assertEquals(BigDecimal.ZERO, batch.getUnitiesProduced());
     }
 
     @Test
     void testCantidadNegativa() {
         BigDecimal cantidadNegativa = new BigDecimal("-10");
-        batch.setQuantityProduced(cantidadNegativa);
+        batch.setUnitiesProduced(cantidadNegativa);
         
-        assertEquals(cantidadNegativa, batch.getQuantityProduced());
+        assertEquals(cantidadNegativa, batch.getUnitiesProduced());
     }
 
     @Test
     void testProduccionSinProducto() {
-        batch.setQuantityProduced(new BigDecimal("25"));
+        batch.setUnitiesProduced(new BigDecimal("25"));
         batch.setProductionDate(LocalDateTime.now());
         
         assertNull(batch.getProduct());
-        assertNotNull(batch.getQuantityProduced());
+        assertNotNull(batch.getUnitiesProduced());
     }
 
     @Test
@@ -91,16 +91,16 @@ class ProductionBatchTest {
         batch.setProductionDate(LocalDateTime.now());
         
         assertNotNull(batch.getProduct());
-        assertNull(batch.getQuantityProduced());
+        assertNull(batch.getUnitiesProduced());
     }
 
     @Test
     void testProduccionSinFecha() {
         batch.setProduct(testProduct);
-        batch.setQuantityProduced(new BigDecimal("75"));
+        batch.setUnitiesProduced(new BigDecimal("75"));
         
         assertNotNull(batch.getProduct());
-        assertNotNull(batch.getQuantityProduced());
+        assertNotNull(batch.getUnitiesProduced());
         assertNull(batch.getProductionDate());
     }
 
@@ -117,9 +117,9 @@ class ProductionBatchTest {
     @Test
     void testDecimalPrecision() {
         BigDecimal cantidadPrecisa = new BigDecimal("123.456789");
-        batch.setQuantityProduced(cantidadPrecisa);
+        batch.setUnitiesProduced(cantidadPrecisa);
         
-        assertEquals(cantidadPrecisa, batch.getQuantityProduced());
-        assertEquals(0, cantidadPrecisa.compareTo(batch.getQuantityProduced()));
+        assertEquals(cantidadPrecisa, batch.getUnitiesProduced());
+        assertEquals(0, cantidadPrecisa.compareTo(batch.getUnitiesProduced()));
     }
 }

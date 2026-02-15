@@ -36,7 +36,7 @@ class ProductionIntegrationTest {
 
         ProductionBatch batch = new ProductionBatch();
         batch.setProduct(product);
-        batch.setQuantityProduced(new BigDecimal("100"));
+        batch.setUnitiesProduced(new BigDecimal("100"));
         batch.setProductionDate(LocalDateTime.now());
 
         entityManager.persist(batch);
@@ -47,7 +47,7 @@ class ProductionIntegrationTest {
         
         assertNotNull(encontrado);
         assertEquals(product.getId(), encontrado.getProduct().getId());
-        assertEquals(new BigDecimal("100"), encontrado.getQuantityProduced());
+        assertEquals(new BigDecimal("100"), encontrado.getUnitiesProduced());
         assertNotNull(encontrado.getProductionDate());
     }
 
@@ -125,7 +125,7 @@ class ProductionIntegrationTest {
 
         ProductionBatch batch = new ProductionBatch();
         batch.setProduct(pan);
-        batch.setQuantityProduced(new BigDecimal("20"));
+        batch.setUnitiesProduced(new BigDecimal("20"));
         batch.setProductionDate(LocalDateTime.now());
         entityManager.persist(batch);
 
@@ -133,7 +133,7 @@ class ProductionIntegrationTest {
         
         assertNotNull(encontrado);
         assertEquals(pan.getId(), encontrado.getProduct().getId());
-        assertEquals(new BigDecimal("20"), encontrado.getQuantityProduced());
+        assertEquals(new BigDecimal("20"), encontrado.getUnitiesProduced());
     }
 
     @Test
@@ -164,7 +164,7 @@ class ProductionIntegrationTest {
 
         ProductionBatch batch = new ProductionBatch();
         batch.setProduct(pan);
-        batch.setQuantityProduced(cantidadProducida);
+        batch.setUnitiesProduced(cantidadProducida);
         batch.setProductionDate(LocalDateTime.now());
         entityManager.persist(batch);
 
@@ -187,19 +187,19 @@ class ProductionIntegrationTest {
 
         ProductionBatch batch1 = new ProductionBatch();
         batch1.setProduct(pan);
-        batch1.setQuantityProduced(new BigDecimal("50"));
+        batch1.setUnitiesProduced(new BigDecimal("50"));
         batch1.setProductionDate(LocalDateTime.now());
         entityManager.persist(batch1);
 
         ProductionBatch batch2 = new ProductionBatch();
         batch2.setProduct(pan);
-        batch2.setQuantityProduced(new BigDecimal("30"));
+        batch2.setUnitiesProduced(new BigDecimal("30"));
         batch2.setProductionDate(LocalDateTime.now().plusHours(1));
         entityManager.persist(batch2);
 
         ProductionBatch batch3 = new ProductionBatch();
         batch3.setProduct(pastel);
-        batch3.setQuantityProduced(new BigDecimal("15"));
+        batch3.setUnitiesProduced(new BigDecimal("15"));
         batch3.setProductionDate(LocalDateTime.now().plusHours(2));
         entityManager.persist(batch3);
 

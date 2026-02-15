@@ -20,7 +20,7 @@ public class ProductService extends AbstractCrudService<Product, Long> {
     @Override
     public List<Product> findAll(String filterText) {
         if (filterText == null || filterText.isEmpty()) {
-            return repository.findAll();
+            return repository.findAll(Sort.by(Sort.Direction.ASC, "description"));
         } else {
             return productRepository.findByDescriptionContainingIgnoreCase(filterText);
         }

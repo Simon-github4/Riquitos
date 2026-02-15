@@ -58,11 +58,10 @@ public class DashboardView extends VerticalLayout {
         createClientesDeudoresSection();
         createAccesosRapidosSection();
         
-        // Auto-refresh cada 30 segundos
         setupAutoRefresh();
     }
 
-    @PostConstruct
+    //@PostConstruct
     public void refresh() {
         updateKPIs();
         updateClientesDeudores();

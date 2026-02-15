@@ -51,6 +51,28 @@ public class StockMovementService extends AbstractCrudService<StockMovement, Lon
         return super.save(movement);
     }
 
+    @Override
+    @Transactional
+    public void delete(StockMovement movement) {
+        RawMaterial materiaPrima = movement.getRawMaterial();
+
+        super.delete(movement);
+        
+        // Si no haces esto, el cálculo siguiente podría incluir todavía el registro borrado
+        repository.flush(); 
+
+        BigDecimal stockReal = calcularStockTeorico(materiaPrima);
+
+        materiaPrima.setCurrentStock(stockReal);
+        rawMaterialService.save(materiaPrima);
+    }
+    @Override
+    @Transactional
+    public void deleteById(Long id) {
+		delete(repository.findById(id).orElseThrow(() -> 
+			new IllegalArgumentException("Movimiento de stock no encontrado con ID: " + id)));
+	}
+    
     @Transactional(readOnly = true)
     public List<StockMovement> findByRawMaterialId(Long rawMaterialId) {
         return stockMovementRepository.findByRawMaterialId(rawMaterialId);
@@ -64,7 +86,6 @@ public class StockMovementService extends AbstractCrudService<StockMovement, Lon
         return stockMovementRepository.findByType(type);
     }
 
-    // Calcula el stock teórico basado en movimientos (para validación)
     public BigDecimal calcularStockTeorico(RawMaterial rawMaterial) {
         List<StockMovement> movimientos = findByRawMaterialId(rawMaterial.getId());
         

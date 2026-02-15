@@ -1,6 +1,7 @@
 package com.riquitos.production;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -15,6 +16,7 @@ import com.riquitos.production.material.RawMaterial;
 import com.riquitos.stock.StockMovement;
 import com.riquitos.stock.StockMovement.StockMovementType;
 import com.riquitos.stock.StockMovementService;
+import com.vaadin.flow.data.provider.DataProvider;
 
 
 @Service
@@ -46,17 +48,26 @@ public class ProductionBatchService extends AbstractCrudService<ProductionBatch,
     }
     
     @Transactional(readOnly = true)
+    public List<ProductionBatch> findAll(String filterText, LocalDate dateFrom, LocalDate dateTo) {
+        if ((filterText == null || filterText.isEmpty()) && dateFrom == null && dateTo == null) {
+            return batchRepository.findAll();
+        }
+        return batchRepository.search(filterText, dateFrom, dateTo);
+    }
+    
+    @Transactional(readOnly = true)
     public List<ProductionBatch> findByProductId(Long productId) {
         return batchRepository.findByProductId(productId);
     }
     
     @Transactional // IMPORTANTE: Si algo falla, se hace rollback de todo
-    public void registrarProduccion(Product producto, BigDecimal cantidadProducida) {
+    public void registrarProduccion(Product producto, BigDecimal cantidadBolsonesProducida) {
+        BigDecimal cantidadUnidadesProducidas = cantidadBolsonesProducida.multiply(BigDecimal.valueOf(producto.getUnitiesPerBagOrBox()));
         
-        // 1. Crear y guardar la tanda (Histórico)
         ProductionBatch batch = new ProductionBatch();
         batch.setProduct(producto);
-        batch.setQuantityProduced(cantidadProducida);
+        batch.setBagsOrBoxProduced(cantidadBolsonesProducida);
+        batch.setUnitiesProduced(cantidadUnidadesProducidas);
         batch.setProductionDate(LocalDateTime.now());
         
         batchRepository.save(batch);
@@ -64,8 +75,9 @@ public class ProductionBatchService extends AbstractCrudService<ProductionBatch,
         // 2. Descontar materias primas (Receta)
         if (producto.getRecipe() != null) {
             for (ProductIngredient ingrediente : producto.getRecipe()) {
-                
-                BigDecimal consumoTotal = cantidadProducida.multiply(ingrediente.getQuantityRequired());
+            	BigDecimal pesoTotalProducidoKg = cantidadUnidadesProducidas.multiply(BigDecimal.valueOf(producto.getNetWeight()))
+            																.divide(BigDecimal.valueOf(1000)); // Convertir a kg
+                BigDecimal consumoTotal = pesoTotalProducidoKg.multiply(ingrediente.getQuantityRequired());
 
                 RawMaterial materiaPrima = ingrediente.getRawMaterial();
                 
@@ -92,11 +104,21 @@ public class ProductionBatchService extends AbstractCrudService<ProductionBatch,
         }
     }
     
-    /**
-     * Obtiene todos los movimientos de stock asociados a un batch de producción
-     */
+    @Transactional // IMPORTANTE: Para que todo ocurra en una sola transacción atómica
+    public void anularProduccion(ProductionBatch batch) {
+        List<StockMovement> movimientosAsociados = stockMovementService.findByProductionBatchId(batch.getId());
+
+        if (!movimientosAsociados.isEmpty()) {
+        	movimientosAsociados.forEach(m-> stockMovementService.delete(m));
+        }
+
+        batchRepository.delete(batch);
+    }
+    
+    //Obtiene todos los movimientos de stock asociados a un batch de producción
     @Transactional(readOnly = true)
     public List<StockMovement> obtenerMovimientosDeBatch(Long batchId) {
         return stockMovementService.findByProductionBatchId(batchId);
     }
+
 }
