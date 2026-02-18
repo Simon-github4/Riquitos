@@ -5,6 +5,7 @@ import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.button.Button;          // Importado
 import com.vaadin.flow.component.button.ButtonVariant;   // Importado
 import com.vaadin.flow.component.html.Footer;            // Importado
+import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -25,7 +26,7 @@ import jakarta.annotation.security.PermitAll;
 @PermitAll
 public final class MainLayout extends AppLayout {
 
-    private final AuthenticationContext authContext; // 1. Dependencia necesaria
+    private final AuthenticationContext authContext; 
 
     // 2. Inyectamos AuthenticationContext en el constructor
     MainLayout(AuthenticationContext authContext) {
@@ -37,10 +38,9 @@ public final class MainLayout extends AppLayout {
     }
 
     private Component createHeader() {
-        // TODO Replace with real application logo and name
-        var appLogo = VaadinIcon.CUBES.create();
-        appLogo.setSize("48px");
-        appLogo.setColor("green");
+    	Image appLogo = new Image("icons/icon.png", "Logo de la App");
+    	appLogo.setWidth("48px");
+    	appLogo.setHeight("48px");
 
         var appName = new Span("Riquitos");
         appName.getStyle().setFontWeight(Style.FontWeight.BOLD);
@@ -61,23 +61,27 @@ public final class MainLayout extends AppLayout {
         nav.addClassNames(LumoUtility.Margin.Horizontal.MEDIUM);
 
         Icon icon = VaadinIcon.FACTORY.create();
-        icon.addClassName(LumoUtility.TextColor.PRIMARY); // Usa el color primario del tema
+        icon.addClassName(LumoUtility.TextColor.PRIMARY); 
         
         SideNavItem seccionProduccion = new SideNavItem("Producción");
-        seccionProduccion.setPrefixComponent(icon); // Ícono de la carpeta
-
+        seccionProduccion.setPrefixComponent(icon); 
+        seccionProduccion.setExpanded(true);
+        
         icon = VaadinIcon.BRIEFCASE.create();
-        icon.addClassName(LumoUtility.TextColor.PRIMARY); // Usa el color primario del tema
+        icon.addClassName(LumoUtility.TextColor.PRIMARY); 
 
         SideNavItem seccionComercial = new SideNavItem("Comercial");
         seccionComercial.setPrefixComponent(icon);
-
+        seccionComercial.setExpanded(true);
+        seccionComercial.setEnabled(false);
+        
         icon = VaadinIcon.STORAGE.create();
-        icon.addClassName(LumoUtility.TextColor.PRIMARY); // Usa el color primario del tema
+        icon.addClassName(LumoUtility.TextColor.PRIMARY); 
         
         SideNavItem seccionInventario = new SideNavItem("Inventario");
         seccionInventario.setPrefixComponent(icon);
-
+        seccionInventario.setExpanded(true);
+        
         MenuConfiguration.getMenuEntries().forEach(entry -> {
             SideNavItem item = createSideNavItem(entry);
             String titulo = entry.title();
@@ -123,7 +127,6 @@ public final class MainLayout extends AppLayout {
         }
     }
 
-    // 4. Método nuevo para crear el botón de salir
     private Footer createFooter() {
         Footer layout = new Footer();
         layout.addClassNames(LumoUtility.Padding.MEDIUM);

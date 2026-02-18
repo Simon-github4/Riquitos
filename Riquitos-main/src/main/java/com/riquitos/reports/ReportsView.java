@@ -52,6 +52,7 @@ public class ReportsView extends VerticalLayout {
     private void createFilters() {
         HorizontalLayout filtersLayout = new HorizontalLayout();
         filtersLayout.setSpacing(true);
+        filtersLayout.setWrap(true);
         filtersLayout.setAlignItems(Alignment.END);
 
         reportTypeCombo = new ComboBox<>("Tipo de Reporte");
