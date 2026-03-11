@@ -50,7 +50,7 @@ public class ProductionBatchService extends AbstractCrudService<ProductionBatch,
     @Transactional(readOnly = true)
     public List<ProductionBatch> findAll(String filterText, LocalDate dateFrom, LocalDate dateTo) {
         if ((filterText == null || filterText.isEmpty()) && dateFrom == null && dateTo == null) {
-            return batchRepository.findAll();
+            return batchRepository.findAll(Sort.by(Sort.Direction.DESC, "productionDate"));
         }
         return batchRepository.search(filterText, dateFrom, dateTo);
     }

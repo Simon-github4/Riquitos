@@ -2,6 +2,7 @@ package com.riquitos.reports;
 
 import java.io.ByteArrayOutputStream;
 import java.math.BigDecimal;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
@@ -36,11 +37,25 @@ public class ReportService {
     private final RawMaterialService rawMaterialService;
 
     public ReportService(ProductionBatchService productionBatchService,
-    					StockMovementService stockMovementService,
-    					RawMaterialService rawMaterialService) {
+                         StockMovementService stockMovementService,
+                         RawMaterialService rawMaterialService) {
         this.productionBatchService = productionBatchService;
         this.stockMovementService = stockMovementService;
         this.rawMaterialService = rawMaterialService;
+    }
+
+    // ==========================================
+    // MÉTODOS PÚBLICOS DE GENERACIÓN
+    // ==========================================
+
+    public byte[] generateWeeklyReport(LocalDate date) {
+        LocalDateTime startDate = date.with(DayOfWeek.MONDAY).atStartOfDay();
+        LocalDateTime endDate = date.with(DayOfWeek.SUNDAY).atTime(23, 59, 59);
+        
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        String title = "Reporte Semanal (" + startDate.format(formatter) + " al " + endDate.format(formatter) + ")";
+        
+        return fetchAndGenerate(startDate, endDate, title);
     }
 
     public byte[] generateMonthlyReport(int year, int month) {
@@ -56,7 +71,10 @@ public class ReportService {
         return fetchAndGenerate(startDate, endDate, "Reporte Anual - " + year);
     }
 
-    // Método helper para evitar duplicar la lógica de búsqueda
+    // ==========================================
+    // LÓGICA PRINCIPAL (PDF)
+    // ==========================================
+
     private byte[] fetchAndGenerate(LocalDateTime startDate, LocalDateTime endDate, String title) {
         List<ProductionBatch> productions = productionBatchService.findAll().stream()
                 .filter(p -> p.getProductionDate() != null 
@@ -95,16 +113,14 @@ public class ReportService {
                     .setFontSize(14)
                     .setBold());
 
-            // Lógica de Agregación para Producción
-            // Mapa: NombreProducto -> Estadísticas
-            Map<String, ProductionStats> prodStatsMap = new TreeMap<>(); // TreeMap para orden alfabético
+            Map<String, ProductionStats> prodStatsMap = new TreeMap<>(); 
 
             for (ProductionBatch p : productions) {
                 String prodName = p.getProduct() != null ? p.getProduct().getDescription() : "Desconocido";
                 
                 ProductionStats stats = prodStatsMap.computeIfAbsent(prodName, k -> new ProductionStats());
                 
-                stats.count++; // Cantidad de lotes
+                stats.count++; 
                 if (p.getUnitiesProduced() != null) {
                     stats.totalUnits = stats.totalUnits.add(p.getUnitiesProduced());
                 }
@@ -113,7 +129,6 @@ public class ReportService {
                 }
             }
 
-            // Tabla de Producción
             if (!prodStatsMap.isEmpty()) {
                 Table prodTable = new Table(UnitValue.createPercentArray(new float[]{4, 2, 2, 2}));
                 prodTable.setWidth(UnitValue.createPercentValue(100));
@@ -123,7 +138,6 @@ public class ReportService {
                 prodTable.addHeaderCell(createHeaderCell("Total Unidades"));
                 prodTable.addHeaderCell(createHeaderCell("Total Bolsones/Cajas"));
 
-                // Totales generales para el pie de tabla
                 int grandTotalLotes = 0;
                 BigDecimal grandTotalUnits = BigDecimal.ZERO;
                 BigDecimal grandTotalBags = BigDecimal.ZERO;
@@ -140,7 +154,6 @@ public class ReportService {
                     grandTotalBags = grandTotalBags.add(stats.totalBags);
                 }
 
-                // Fila de Totales Generales
                 prodTable.addCell(createHeaderCell("TOTALES"));
                 prodTable.addCell(createHeaderCell(String.valueOf(grandTotalLotes)));
                 prodTable.addCell(createHeaderCell(grandTotalUnits.toString()));
@@ -156,12 +169,10 @@ public class ReportService {
             // ==========================================
             // 2. RESUMEN DE MOVIMIENTOS DE INSUMOS
             // ==========================================
-            document.add(new Paragraph("RESUMEN DE MOVIMIENTOS DE STOCK(Ingresos y Egresos)")
+            document.add(new Paragraph("RESUMEN DE MOVIMIENTOS DE STOCK (Ingresos, Egresos y Ajustes)")
                     .setFontSize(14)
                     .setBold());
 
-            // Lógica de Agregación para Movimientos
-            // Mapa: NombreMateriaPrima -> Estadísticas
             Map<String, MovementStats> moveStatsMap = new TreeMap<>();
 
             for (StockMovement m : movements) {
@@ -174,26 +185,30 @@ public class ReportService {
                     stats.totalIngresos = stats.totalIngresos.add(qty);
                 } else if (m.getType() == StockMovement.StockMovementType.EGRESO) {
                     stats.totalEgresos = stats.totalEgresos.add(qty);
+                } else if (m.getType() == StockMovement.StockMovementType.AJUSTE) { 
+                    stats.totalAjustes = stats.totalAjustes.add(qty);
                 }
             }
 
             if (!moveStatsMap.isEmpty()) {
-                Table moveTable = new Table(UnitValue.createPercentArray(new float[]{4, 3, 3, 3}));
+                // 5 columnas ahora para incluir los Ajustes
+                Table moveTable = new Table(UnitValue.createPercentArray(new float[]{3, 2, 2, 2, 2}));
                 moveTable.setWidth(UnitValue.createPercentValue(100));
                 
                 moveTable.addHeaderCell(createHeaderCell("Materia Prima"));
-                moveTable.addHeaderCell(createHeaderCell("Total Ingresos"));
-                moveTable.addHeaderCell(createHeaderCell("Total Egresos"));
-                moveTable.addHeaderCell(createHeaderCell("Balance (Ing - Egr)"));
+                moveTable.addHeaderCell(createHeaderCell("Ingresos"));
+                moveTable.addHeaderCell(createHeaderCell("Egresos"));
+                moveTable.addHeaderCell(createHeaderCell("Ajustes"));
+                moveTable.addHeaderCell(createHeaderCell("Balance (Ing - Egr + Aju)"));
 
                 for (Map.Entry<String, MovementStats> entry : moveStatsMap.entrySet()) {
                     MovementStats stats = entry.getValue();
-                    BigDecimal balance = stats.totalIngresos.subtract(stats.totalEgresos);
+                    BigDecimal balance = stats.totalIngresos.subtract(stats.totalEgresos).add(stats.totalAjustes);
 
                     moveTable.addCell(createCell(entry.getKey()));
                     moveTable.addCell(createCell(stats.totalIngresos.toString()));
                     moveTable.addCell(createCell(stats.totalEgresos.toString()));
-                    // Color condicional para el balance si es negativo (opcional)
+                    moveTable.addCell(createCell(stats.totalAjustes.toString()));
                     moveTable.addCell(createCell(balance.toString()));
                 }
                 document.add(moveTable);
@@ -236,7 +251,9 @@ public class ReportService {
         return baos.toByteArray();
     }
 
-    // --- Clases Helper para Agregación (Internas) ---
+    // ==========================================
+    // CLASES HELPER (INTERNAS)
+    // ==========================================
     
     private static class ProductionStats {
         int count = 0;
@@ -247,9 +264,12 @@ public class ReportService {
     private static class MovementStats {
         BigDecimal totalIngresos = BigDecimal.ZERO;
         BigDecimal totalEgresos = BigDecimal.ZERO;
+        BigDecimal totalAjustes = BigDecimal.ZERO; // <-- Nuevo campo
     }
 
-    // --- Helpers de Estilo ---
+    // ==========================================
+    // HELPERS DE ESTILO Y FORMATEO
+    // ==========================================
 
     private Cell createHeaderCell(String text) {
         return new Cell()

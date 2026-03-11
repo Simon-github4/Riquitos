@@ -30,10 +30,11 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.StreamResource;
 
 import jakarta.annotation.security.PermitAll;
+import jakarta.annotation.security.RolesAllowed;
 
 @Route(value = "backups", layout = MainLayout.class)
 @Menu(title = "Backups", order = 99, icon = "vaadin:database")
-@PermitAll
+@RolesAllowed({"ADMIN"})
 //@Push 
 public class BackupView extends VerticalLayout {
 

@@ -49,7 +49,7 @@ public class ProductForm extends AbstractForm<Product> {
     // --- CAMPOS PARA GESTIÓN DE RECETA (No se bindean automático) ---
     private final Grid<ProductIngredient> recipeGrid = new Grid<>(ProductIngredient.class, false);
     private final ComboBox<RawMaterial> rawMaterialCombo = new ComboBox<>("Insumo");
-    private final BigDecimalField quantityField = new BigDecimalField("Cantidad");
+    private final BigDecimalField quantityField = new BigDecimalField("Cantidad x Kg de Producto");
     private final Button addIngredientBtn = new Button(VaadinIcon.PLUS.create());
 
     private final RawMaterialService rawMaterialService;
@@ -181,6 +181,8 @@ public class ProductForm extends AbstractForm<Product> {
 
         quantityField.setPlaceholder("Ej: 0.25");
         quantityField.setWidth("30%");
+        quantityField.setHelperText("( x Kg de Producto)");
+        quantityField.setTooltipText("Cantidad x KG de producto terminado");
 
         addIngredientBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         addIngredientBtn.addClickListener(e -> addIngredient());

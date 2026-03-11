@@ -30,11 +30,12 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
 import jakarta.annotation.security.PermitAll;
+import jakarta.annotation.security.RolesAllowed;
 
 @Route(value = "stock/movimientos", layout = MainLayout.class)
 @PageTitle("Kardex de Stock | Riquitos")
 @Menu(order = 4, icon = "vaadin:exchange", title = "Kardex de Stock")
-@PermitAll
+@RolesAllowed({"ADMIN"})
 public class StockMovementView extends VerticalLayout {
 
     private final StockMovementService service;

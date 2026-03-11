@@ -104,7 +104,7 @@ public class ScanView extends VerticalLayout {
         productoSeleccionadoField.setMaxWidth("300px");
         productoSeleccionadoField.addThemeVariants(com.vaadin.flow.component.textfield.TextFieldVariant.LUMO_HELPER_ABOVE_FIELD);
 
-        cantidadField = new BigDecimalField("Cantidad / Peso");
+        cantidadField = new BigDecimalField("Bolsones / Cajas Producidas");
         cantidadField.setWidthFull();
         cantidadField.setMaxWidth("300px");
         cantidadField.setPlaceholder("0.00");

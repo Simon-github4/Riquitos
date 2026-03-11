@@ -18,7 +18,8 @@ public interface ProductionBatchRepository extends JpaRepository<ProductionBatch
             "where (lower(b.product.description) like lower(concat('%', :filterText, '%')) or :filterText is null) " +
             // Agregamos cast(:dateFrom as date) para dar la pista de tipo a Postgres
             "and (cast(b.productionDate as LocalDate) >= :dateFrom or cast(:dateFrom as date) is null) " + 
-            "and (cast(b.productionDate as LocalDate) <= :dateTo or cast(:dateTo as date) is null)")
+            "and (cast(b.productionDate as LocalDate) <= :dateTo or cast(:dateTo as date) is null)" +
+            "ORDER BY productionDate DESC")
      List<ProductionBatch> search(@Param("filterText") String filterText, 
                                   @Param("dateFrom") LocalDate dateFrom, 
                                   @Param("dateTo") LocalDate dateTo);

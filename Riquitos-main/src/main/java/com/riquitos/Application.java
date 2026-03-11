@@ -19,7 +19,7 @@ import com.vaadin.flow.theme.lumo.Lumo;
 @PWA(
 	    name = "Riquitos ERP", 
 	    shortName = "Riquitos", 
-	    iconPath = "icons/icon.png",
+	    iconPath = "icons/icon.jpg",
 	    offlinePath = "offline.html"
 	)
 @EnableJpaAuditing 

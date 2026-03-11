@@ -16,7 +16,7 @@ import jakarta.annotation.security.RolesAllowed;
 @Route(value = "productos", layout = MainLayout.class)
 @PageTitle("Productos")
 @Menu(order = 2, icon = "vaadin:package", title = "Productos")
-@RolesAllowed({"ADMIN"})
+@RolesAllowed({"ADMIN", "VENDEDOR"})
 public class ProductView extends AbstractListView<Product, ProductForm, ProductService> {
 	
 	private final RawMaterialService rawMaterialService;

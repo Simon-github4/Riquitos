@@ -28,11 +28,12 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
 import jakarta.annotation.security.PermitAll;
+import jakarta.annotation.security.RolesAllowed;
 
 @Route(value = "produccion/batch", layout = MainLayout.class)
 @PageTitle("Lotes de Producción | Riquitos")
 @Menu(order = 3, icon = "vaadin:factory", title = "Lotes de Producción")
-@PermitAll
+@RolesAllowed({"ADMIN"})
 public class ProductionBatchView extends VerticalLayout {
 
     private final ProductionBatchService service;

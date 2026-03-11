@@ -38,8 +38,8 @@ public final class MainLayout extends AppLayout {
     }
 
     private Component createHeader() {
-    	Image appLogo = new Image("icons/icon.png", "Logo de la App");
-    	appLogo.setWidth("48px");
+    	Image appLogo = new Image("icons/icon.jpg", "Logo de la App");
+    	appLogo.setWidth("90px");
     	appLogo.setHeight("48px");
 
         var appName = new Span("Riquitos");

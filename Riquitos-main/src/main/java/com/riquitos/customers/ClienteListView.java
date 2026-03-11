@@ -18,11 +18,12 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
 import jakarta.annotation.security.PermitAll;
+import jakarta.annotation.security.RolesAllowed;
 
 @Route(value = "customers", layout = MainLayout.class)
 @PageTitle("Clientes | Riquitos")
 @Menu(order = 4, icon = "vaadin:users", title = "Clientes")
-@PermitAll
+@RolesAllowed({"ADMIN", "VENDEDOR"})
 public class ClienteListView extends AbstractListView<Customer, ClienteForm, CustomerService> {
 
     public ClienteListView(CustomerService customerService) {

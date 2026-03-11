@@ -19,11 +19,12 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
 import jakarta.annotation.security.PermitAll;
+import jakarta.annotation.security.RolesAllowed;
 
 @Route(value = "movimientos", layout = MainLayout.class)
 @PageTitle("Movimientos | Riquitos")
 @Menu(order = 5, icon = "vaadin:exchange", title = "Ingresos/Egresos")
-@PermitAll
+@RolesAllowed({"ADMIN", "VENDEDOR"})
 public class MovimientoListView extends AbstractListView<Movimiento, MovimientoForm, MovimientoService> implements HasUrlParameter<Long> {
 
     private final CustomerService customerService;

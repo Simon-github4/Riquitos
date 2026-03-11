@@ -28,7 +28,7 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver {
         login.setForgotPasswordButtonVisible(false);
         login.setI18n(createSpanishI18n());
         
-        add(new H1("Riquitos ERP"), login);
+        add(new H1("Riquitos"), login);
     }
 
     @Override

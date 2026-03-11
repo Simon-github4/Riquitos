@@ -31,12 +31,13 @@ import com.vaadin.flow.theme.lumo.LumoUtility;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.PermitAll;
+import jakarta.annotation.security.RolesAllowed;
 
 @PageTitle("Dashboard Riquitos")
-@Route(value = "", layout = MainLayout.class)
+@Route(value = "dashboard", layout = MainLayout.class)
 @Menu(order = 0, icon = "vaadin:dashboard", title = "Dashboard Riquitos")
 //@CssImport("./styles/dashboard.css")
-@PermitAll
+@RolesAllowed({"ADMIN"})
 public class DashboardView extends VerticalLayout {
 
     private static final long serialVersionUID = 1L;

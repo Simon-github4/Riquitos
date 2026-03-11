@@ -21,11 +21,12 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
 import jakarta.annotation.security.PermitAll;
+import jakarta.annotation.security.RolesAllowed;
 
 @PageTitle("Insumos")
 @Route(value = "insumos", layout = com.riquitos.base.ui.MainLayout.class)
 @Menu(order = 6, icon = "vaadin:cubes", title = "Insumos")
-@PermitAll
+@RolesAllowed({"ADMIN"})
 public class RawMaterialsView extends AbstractListView<RawMaterial, RawMaterialForm, RawMaterialService> {
 
     public RawMaterialsView(RawMaterialService service) {

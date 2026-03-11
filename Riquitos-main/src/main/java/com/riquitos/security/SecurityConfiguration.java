@@ -43,18 +43,18 @@ public class SecurityConfiguration {
     
     @Bean
     public UserDetailsManager userDetailsService() {
-        UserDetails operario = User.withUsername("operario")
+        UserDetails operario = User.withUsername("fabrica")
                 .password("{noop}1234")
                 .roles("OPERARIO")
                 .build();
 
-        UserDetails vendedor = User.withUsername("vendedor")
-                .password("{noop}1234")
+        UserDetails vendedor = User.withUsername("oficina")
+                .password("{noop}fghunbvtrfda")
                 .roles("VENDEDOR")
                 .build();
 
-        UserDetails admin = User.withUsername("admin")
-                .password("{noop}admin")
+        UserDetails admin = User.withUsername("juan")
+                .password("{noop}juanpe0510")
                 .roles("ADMIN", "VENDEDOR", "OPERARIO")
                 .build();
 
