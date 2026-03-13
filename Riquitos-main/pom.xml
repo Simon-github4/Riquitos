@@ -87,11 +87,24 @@
 	        <artifactId>lombok</artifactId>
 	        <optional>true</optional>
 	    </dependency>
-	    <dependency>
+        <dependency>
 	        <groupId>com.itextpdf</groupId>
 	        <artifactId>itext-core</artifactId>
 	        <version>8.0.5</version>
 	        <type>pom</type>
+	    </dependency>
+	    
+	    <!-- Playwright for E2E Testing -->
+	    <dependency>
+	        <groupId>com.microsoft.playwright</groupId>
+	        <artifactId>playwright</artifactId>
+	        <version>1.48.0</version>
+	    </dependency>
+	    <dependency>
+	        <groupId>org.junit.jupiter</groupId>
+	        <artifactId>junit-jupiter</artifactId>
+	        <version>5.11.0</version>
+	        <scope>test</scope>
 	    </dependency>
     </dependencies>
     

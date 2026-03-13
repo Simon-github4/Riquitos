@@ -1,5 +1,6 @@
 package com.riquitos.stock;
 
+import java.math.BigDecimal;
 import java.time.format.DateTimeFormatter;
 
 import com.riquitos.base.ui.MainLayout;
@@ -262,7 +263,25 @@ public class StockMovementView extends VerticalLayout {
 
     private void saveMovement(StockMovement movement) {
         try {
-        	service.save(movement);
+            if (movement.getType() == StockMovementType.INGRESO) {
+                service.saveIngreso(
+                    movement.getRawMaterial(),
+                    movement.getQuantity(),
+                    movement.getObservations()
+                );
+            } else if (movement.getType() == StockMovementType.AJUSTE) {
+                service.saveAjuste(
+                    movement.getRawMaterial(),
+                    movement.getQuantity(),
+                    movement.getObservations()
+                );
+            } else {
+                service.saveEgreso(
+                		movement.getRawMaterial(),
+                		movement.getQuantity(),
+                		movement.getProductionBatch(),
+                        movement.getObservations());
+            }
             
             showSuccess("Movimiento registrado correctamente");
             updateList();

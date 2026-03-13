@@ -75,4 +75,52 @@ public class StockMovement {
         EGRESO,     // Consumo en producción
         AJUSTE      // Corrección de inventario
     }
+    
+    public LocalDateTime getMovementDateTime() {
+        return movementDateTime;
+    }
+    
+    public void setMovementDateTime(LocalDateTime movementDateTime) {
+        this.movementDateTime = movementDateTime;
+    }
+    
+    public StockMovementType getType() {
+        return type;
+    }
+    
+    public void setType(StockMovementType type) {
+        this.type = type;
+    }
+    
+    public String getObservations() {
+        return observations;
+    }
+    
+    public void setObservations(String observations) {
+        this.observations = observations;
+    }
+    
+    public RawMaterial getRawMaterial() {
+        return rawMaterial;
+    }
+    
+    public void setRawMaterial(RawMaterial rawMaterial) {
+        this.rawMaterial = rawMaterial;
+    }
+    
+    public BigDecimal getQuantity() {
+        return quantity;
+    }
+    
+    public void setQuantity(BigDecimal quantity) {
+        this.quantity = quantity;
+    }
+    
+    public ProductionBatch getProductionBatch() {
+        return productionBatch;
+    }
+    
+    public void setProductionBatch(ProductionBatch productionBatch) {
+        this.productionBatch = productionBatch;
+    }
 }

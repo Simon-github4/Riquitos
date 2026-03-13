@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.riquitos.AbstractCrudService;
+import com.riquitos.production.ProductionBatch;
 import com.riquitos.production.material.RawMaterial;
 import com.riquitos.production.material.RawMaterialService;
 import com.riquitos.stock.StockMovement.StockMovementType;
@@ -29,17 +30,7 @@ public class StockMovementService extends AbstractCrudService<StockMovement, Lon
 
     @Override
     public List<StockMovement> findAll(String filterText) {
-        //if (filterText == null || filterText.isEmpty()) 
-            return repository.findAll(Sort.by(Sort.Direction.DESC, "movementDateTime"));
-        /*String filter = filterText.toLowerCase();
-        return repository.findAll(Sort.by(Sort.Direction.DESC, "movementDateTime")).stream()
-            .filter(movement -> 
-                (movement.getRawMaterial() != null && 
-                 movement.getRawMaterial().getName() != null &&
-                 movement.getRawMaterial().getName().toLowerCase().contains(filter)) ||
-                (movement.getObservations() != null &&
-                 movement.getObservations().toLowerCase().contains(filter)))
-            .toList();*/
+        return repository.findAll(Sort.by(Sort.Direction.DESC, "movementDateTime"));
     }
 
     @Override
@@ -57,7 +48,6 @@ public class StockMovementService extends AbstractCrudService<StockMovement, Lon
         RawMaterial materiaPrima = movement.getRawMaterial();
 
         super.delete(movement);
-        
         // Si no haces esto, el cálculo siguiente podría incluir todavía el registro borrado
         repository.flush(); 
 
@@ -66,6 +56,7 @@ public class StockMovementService extends AbstractCrudService<StockMovement, Lon
         materiaPrima.setCurrentStock(stockReal);
         rawMaterialService.save(materiaPrima);
     }
+    
     @Override
     @Transactional
     public void deleteById(Long id) {
@@ -86,23 +77,24 @@ public class StockMovementService extends AbstractCrudService<StockMovement, Lon
         return stockMovementRepository.findByType(type);
     }
 
-    public BigDecimal calcularStockTeorico(RawMaterial rawMaterial) {
-        List<StockMovement> movimientos = findByRawMaterialId(rawMaterial.getId());
-        
-        BigDecimal stockTeorico = BigDecimal.ZERO;
-        for (StockMovement mov : movimientos) {
-            if (mov.getType() == StockMovementType.INGRESO || 
-                mov.getType() == StockMovementType.AJUSTE) {
-                stockTeorico = stockTeorico.add(mov.getQuantity());
-            } else if (mov.getType() == StockMovementType.EGRESO) {
-                stockTeorico = stockTeorico.subtract(mov.getQuantity());
-            }
-        }
-        
-        return stockTeorico;
+    @Transactional
+    public StockMovement saveIngreso(RawMaterial rawMaterial, BigDecimal quantity, String observations) {
+        StockMovement movement = StockMovementFactory.createIngreso(rawMaterial, quantity, observations);
+        return save(movement);
     }
 
-    // ===== MÉTODOS PRIVADOS =====
+    @Transactional
+	public StockMovement saveEgreso(RawMaterial materiaPrima, BigDecimal quantity, ProductionBatch batch, String observations) {
+		StockMovement movement = StockMovementFactory.createEgreso(materiaPrima, quantity, batch, observations);
+        return save(movement);
+	}
+	
+    @Transactional
+    public StockMovement saveAjuste(RawMaterial rawMaterial, BigDecimal quantity, String observations) {
+        StockMovement movement = StockMovementFactory.createAjuste(rawMaterial, quantity, observations);
+        return save(movement);
+    }
+    
     private void validateMovement(StockMovement movement) {
         if (movement.getType() == null) {
             throw new IllegalArgumentException("Tipo de movimiento requerido");
@@ -112,7 +104,6 @@ public class StockMovementService extends AbstractCrudService<StockMovement, Lon
             throw new IllegalArgumentException("Materia prima requerida");
         }
         
-        // Validación específica para egresos
         if (movement.getType() == StockMovementType.EGRESO) {
             if (movement.getProductionBatch() == null) {
                 throw new IllegalArgumentException("ProductionBatch requerido para egresos");
@@ -134,4 +125,22 @@ public class StockMovementService extends AbstractCrudService<StockMovement, Lon
     	materiaPrima.setCurrentStock(nuevoStock);
         rawMaterialService.save(materiaPrima);
     }
+
+    public BigDecimal calcularStockTeorico(RawMaterial rawMaterial) {
+        List<StockMovement> movimientos = findByRawMaterialId(rawMaterial.getId());
+        
+        BigDecimal stockTeorico = BigDecimal.ZERO;
+        for (StockMovement mov : movimientos) {
+            if (mov.getType() == StockMovementType.INGRESO || 
+                mov.getType() == StockMovementType.AJUSTE) {
+                stockTeorico = stockTeorico.add(mov.getQuantity());
+            } else if (mov.getType() == StockMovementType.EGRESO) {
+                stockTeorico = stockTeorico.subtract(mov.getQuantity());
+            }
+        }
+        
+        return stockTeorico;
+    }
+
+    
 }

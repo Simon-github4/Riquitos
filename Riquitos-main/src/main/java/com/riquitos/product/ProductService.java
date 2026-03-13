@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.riquitos.AbstractCrudService;
 
@@ -25,7 +26,10 @@ public class ProductService extends AbstractCrudService<Product, Long> {
             return productRepository.findByDescriptionContainingIgnoreCase(filterText);
         }
     }
-	public List<Product> findAllByDescAsc() {
-		return repository.findAll(Sort.by(Sort.Direction.ASC, "description"));
+    
+    @Transactional(readOnly = true)
+	public List<Product> findAllByDescriptionAscImgNotNullFirst() {
+		//return repository.findAll(Sort.by(Sort.Direction.ASC, "description"));
+		return productRepository.findAllOrderByImagePresentAndDescription();
 	}
 }

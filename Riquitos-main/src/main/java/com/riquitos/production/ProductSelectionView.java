@@ -1,16 +1,13 @@
 package com.riquitos.production;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import com.riquitos.base.ui.MainLayout;
 import com.riquitos.base.ui.ViewToolbar;
 import com.riquitos.product.Product;
 import com.riquitos.product.ProductService;
-import com.vaadin.flow.component.ClickEvent;
-import com.vaadin.flow.component.ComponentEventListener;
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Image;
@@ -19,13 +16,15 @@ import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
-import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.datetimepicker.DateTimePicker;
 import com.vaadin.flow.component.textfield.BigDecimalField;
 import com.vaadin.flow.router.Menu;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 
 import jakarta.annotation.security.PermitAll;
 
@@ -51,7 +50,6 @@ public class ProductSelectionView extends VerticalLayout {
 
         add(new ViewToolbar("Producción por Selección de Productos"));
         
-        // Contenedor para los productos
         productsContainer = new Div();
         productsContainer.setWidthFull();
         productsContainer.getStyle().set("display", "grid");
@@ -59,7 +57,6 @@ public class ProductSelectionView extends VerticalLayout {
         productsContainer.getStyle().set("grid-template-columns", "repeat(auto-fill, minmax(200px, 1fr))");
         productsContainer.getStyle().set("padding", "16px");
         
-        // Botón de refresh
         Button refreshBtn = new Button("Actualizar Productos", new Icon(VaadinIcon.REFRESH));
         refreshBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         refreshBtn.addClickListener(e -> loadProducts());
@@ -72,7 +69,7 @@ public class ProductSelectionView extends VerticalLayout {
     private void loadProducts() {
         productsContainer.removeAll();
         
-        List<Product> products = productService.findAllByDescAsc();
+        List<Product> products = productService.findAllByDescriptionAscImgNotNullFirst();
         
         for (Product product : products) {
             Div productCard = createProductCard(product);
@@ -96,10 +93,8 @@ public class ProductSelectionView extends VerticalLayout {
         card.getStyle().set("align-items", "center");
         card.getStyle().set("justify-content", "center");
         card.getStyle().set("text-align", "center");
+        card.getStyle().set("box-sizing", "border-box");
         
-        card.getStyle().set("box-sizing", "border-box"); // Fundamental para que el padding no "infle" la card
-        
-        // Efectos hover
         card.getElement().addEventListener("mouseover", e -> {
             card.getStyle().set("border-color", "#007bff");
             card.getStyle().set("transform", "translateY(-2px)");
@@ -112,14 +107,11 @@ public class ProductSelectionView extends VerticalLayout {
             card.getStyle().set("box-shadow", "0 2px 4px rgba(0,0,0,0.1)");
         });
 
-        // Imagen del producto
         Image productImage = new Image();
         if (product.getImageData() != null && product.getImageData().length > 0) {
-            // Mostrar imagen real desde BLOB
             String base64Image = java.util.Base64.getEncoder().encodeToString(product.getImageData());
             productImage.setSrc("data:image/png;base64," + base64Image);
         } else {
-            // Placeholder si no hay imagen
             String initials = product.getDescription().length() >= 3 ? 
                 product.getDescription().substring(0, 3).toUpperCase() : 
                 product.getDescription().toUpperCase();
@@ -132,14 +124,12 @@ public class ProductSelectionView extends VerticalLayout {
         productImage.getStyle().set("margin-bottom", "12px"); 
         productImage.getStyle().set("object-fit", "cover"); 
 
-        // Nombre del producto
         Span nameSpan = new Span(product.getDescription());
         nameSpan.getStyle().set("font-weight", "bold");
         nameSpan.getStyle().set("font-size", "14px");
         nameSpan.getStyle().set("margin-bottom", "4px");
         nameSpan.getStyle().set("word-break", "break-word");
         
-        // SKU si existe
         Span skuSpan = new Span();
         if (product.getSku() != null && !product.getSku().isEmpty()) {
             skuSpan.setText("SKU: " + product.getSku());
@@ -162,7 +152,6 @@ public class ProductSelectionView extends VerticalLayout {
         card.getStyle().set("height", "auto"); 
         card.getStyle().set("min-height", "280px");
         
-        // Click handler
         card.addClickListener(e -> selectProduct(product));
         
         return card;
@@ -170,14 +159,13 @@ public class ProductSelectionView extends VerticalLayout {
 
     private void selectProduct(Product product) {
         this.selectedProduct = product;
-        openQuantityDialog(product);    }
-
-
+        openQuantityDialog(product);
+    }
 
     private void openQuantityDialog(Product product) {
         Dialog dialog = new Dialog();
         dialog.setHeaderTitle("Registrar Producción");
-        dialog.setMinWidth("20em");
+        dialog.setMinWidth("25em");
         
         VerticalLayout layout = new VerticalLayout();
         layout.setSpacing(true);
@@ -192,6 +180,16 @@ public class ProductSelectionView extends VerticalLayout {
         quantityField.setWidthFull();
         quantityField.setRequired(true);
         
+        DateTimePicker dateTimePicker = new DateTimePicker("Fecha y Hora de Producción");
+        dateTimePicker.setValue(LocalDateTime.now());
+        dateTimePicker.setWidthFull();
+        
+        Button setYesterdayBtn = new Button("Cargar Ayer", e -> {
+            dateTimePicker.setValue(dateTimePicker.getValue().minusDays(1));
+        });
+        setYesterdayBtn.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_TERTIARY);
+        dateTimePicker.setHelperComponent(setYesterdayBtn);
+        
         Button confirmBtn = new Button("Confirmar", e -> {
             if (quantityField.getValue() == null || quantityField.getValue().compareTo(BigDecimal.ZERO) <= 0) {
                 Notification.show("Ingrese una cantidad válida", 3000, Notification.Position.MIDDLE)
@@ -199,7 +197,10 @@ public class ProductSelectionView extends VerticalLayout {
                 return;
             }
             
-            registerProduction(product, quantityField.getValue());
+            LocalDateTime productionDateTime = dateTimePicker.getValue() != null ? 
+                dateTimePicker.getValue() : LocalDateTime.now();
+            
+            registerProduction(product, quantityField.getValue(), productionDateTime);
             dialog.close();
         });
         confirmBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SUCCESS);
@@ -213,16 +214,16 @@ public class ProductSelectionView extends VerticalLayout {
         buttonLayout.setJustifyContentMode(JustifyContentMode.END);
         buttonLayout.setWidthFull();
         
-        layout.add(productInfo, quantityField, buttonLayout);
+        layout.add(productInfo, quantityField, dateTimePicker, buttonLayout);
         dialog.add(layout);
         
         dialog.open();
         quantityField.focus();
     }
 
-    private void registerProduction(Product product, BigDecimal quantity) {
+    private void registerProduction(Product product, BigDecimal quantity, LocalDateTime productionDateTime) {
         try {
-            productionBatchService.registrarProduccion(product, quantity);
+            productionBatchService.registrarProduccion(product, quantity, productionDateTime);
             
             Notification.show(
                 "Producción registrada: " + product.getDescription() + " x " + quantity, 
