@@ -5,6 +5,7 @@ import java.util.Locale;
 
 import com.riquitos.base.ui.AbstractListView;
 import com.riquitos.base.ui.MainLayout;
+import com.riquitos.categories.CategoryService;
 import com.riquitos.production.material.RawMaterialService;
 import com.vaadin.flow.data.renderer.NumberRenderer;
 import com.vaadin.flow.router.Menu;
@@ -20,15 +21,17 @@ import jakarta.annotation.security.RolesAllowed;
 public class ProductView extends AbstractListView<Product, ProductForm, ProductService> {
 	
 	private final RawMaterialService rawMaterialService;
+	private final CategoryService categoryService;
 	
-    public ProductView(ProductService service, RawMaterialService rawMaterialService) {
+    public ProductView(ProductService service, RawMaterialService rawMaterialService, CategoryService categoryService) {
     	super(Product.class, "Listado de Productos", service);
     	this.rawMaterialService = rawMaterialService;
+    	this.categoryService = categoryService;
     }
 
     @Override
     protected ProductForm createForm() {
-        return new ProductForm(rawMaterialService);
+        return new ProductForm(rawMaterialService, categoryService);
     }
 
     @Override

@@ -8,6 +8,8 @@ import java.util.Base64;
 import java.util.Locale;
 
 import com.riquitos.base.ui.AbstractForm;
+import com.riquitos.categories.Category;
+import com.riquitos.categories.CategoryService;
 import com.riquitos.production.material.RawMaterial;
 import com.riquitos.production.material.RawMaterialService;
 import com.vaadin.flow.component.button.Button;
@@ -21,10 +23,9 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
-import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.orderedlayout.Scroller;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.tabs.TabSheet;
 import com.vaadin.flow.component.textfield.BigDecimalField;
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextField;
@@ -39,7 +40,8 @@ public class ProductForm extends AbstractForm<Product> {
     BigDecimalField costPrice = new BigDecimalField("Precio Costo");
     IntegerField unitiesPerBagOrBox = new IntegerField("Unidades x Bolson/Caja");
     IntegerField netWeight = new IntegerField("Peso en Gramos (g)", "Ej: 250 para 250g");
-
+    ComboBox<Category> categoryCombo = new ComboBox<>("Categoría");
+    
     // --- CAMPO PARA IMAGEN ---
     private final MemoryBuffer imageBuffer = new MemoryBuffer();
     private final Upload imageUpload = new Upload(imageBuffer);
@@ -54,7 +56,7 @@ public class ProductForm extends AbstractForm<Product> {
 
     private final RawMaterialService rawMaterialService;
 
-    public ProductForm(RawMaterialService rawMaterialService) {
+    public ProductForm(RawMaterialService rawMaterialService, CategoryService categoryService) {
         super(Product.class);
         this.rawMaterialService = rawMaterialService;
         
@@ -62,43 +64,71 @@ public class ProductForm extends AbstractForm<Product> {
         costPrice.setLocale(new Locale("es", "AR")); 
         costPrice.setPlaceholder("0.00");
         
+        categoryCombo.setItems(categoryService.findAll()); 
+        categoryCombo.setItemLabelGenerator(Category::getName);
+        categoryCombo.setPlaceholder("Seleccione categoría...");
+        categoryCombo.setWidthFull();
+        
         configureImageUpload();
         configureRecipeControls();
         configureRecipeGrid();
 
         binder.bindInstanceFields(this);
         
+        TabSheet tabSheet = new TabSheet();
+        tabSheet.setWidthFull();
+
+        VerticalLayout generalLayout = createGeneralTab();
+        generalLayout.setPadding(false);
+        VerticalLayout recipeLayout = createRecipeTab();
+        recipeLayout.setPadding(false);
+
+        tabSheet.add("Datos del Producto", generalLayout);
+        tabSheet.add("Receta / Coeficientes", recipeLayout);
+
+        add(tabSheet);
+        setColspan(tabSheet, 2);
+    }
+
+    private VerticalLayout createGeneralTab() {
+        HorizontalLayout row1 = new HorizontalLayout(unitiesPerBagOrBox, netWeight);
+        row1.setWidthFull();
+        row1.setDefaultVerticalComponentAlignment(Alignment.CENTER);
+
+        HorizontalLayout row2 = new HorizontalLayout(description, categoryCombo);
+        row2.setWidthFull();
+        row2.setDefaultVerticalComponentAlignment(Alignment.CENTER);
+        description.setWidth("60%");
+        categoryCombo.setWidth("40%");
+
+        HorizontalLayout row3 = new HorizontalLayout(sku, costPrice);
+        row3.setWidthFull();
+        row3.setDefaultVerticalComponentAlignment(Alignment.BASELINE);
+        //costPrice.setWidth("30%");
+        
         VerticalLayout imageSection = new VerticalLayout();
         imageSection.setPadding(false);
-        imageSection.setSpacing(false);
-        imageSection.add(createImageLayout());
+        imageSection.setWidthFull();
+        imageSection.add(new Span("Imagen del Producto"), createImageLayout());
 
+        VerticalLayout layout = new VerticalLayout(row1, row2, row3, imageSection);
+        layout.setPadding(false);
+        return layout;
+    }
+
+    private VerticalLayout createRecipeTab() {
         VerticalLayout recipeSection = new VerticalLayout();
+        recipeSection.setWidthFull();
         recipeSection.setPadding(false);
-        recipeSection.setSpacing(false);
+        recipeSection.setSpacing(true);
         recipeSection.add(
-            new H4("Receta"),
+            new H4("Ingredientes por Kg de Producto"),
             createIngredientInputLayout(), 
             recipeGrid                    
         );
-        
-        HorizontalLayout rowContainer = new HorizontalLayout(sku, unitiesPerBagOrBox, netWeight);
-        rowContainer.setSpacing(true);
-        rowContainer.setDefaultVerticalComponentAlignment(Alignment.BASELINE);
-        sku.setMinWidth("0");
-        unitiesPerBagOrBox.setMinWidth("0");
-        (rowContainer.getComponentAt(2)).getStyle().set("min-width", "0");
-        
-        add(rowContainer);
-        addFormRow(description, costPrice);
-        add(imageSection, recipeSection);
-        
-        setColspan(rowContainer, 2);
-        setColspan(imageSection, 2); 
-        setColspan(recipeSection, 2); 
-        
+        return recipeSection;
     }
-
+    
     // --- CONFIGURACIÓN UI DE IMAGEN ---
     private void configureImageUpload() {
     	imageUpload.setUploadButton(new Button(VaadinIcon.UPLOAD.create()));
@@ -151,7 +181,7 @@ public class ProductForm extends AbstractForm<Product> {
     private HorizontalLayout createImageLayout() {
         HorizontalLayout layout = new HorizontalLayout();
         layout.setWidthFull();
-        layout.setSpacing(true);
+        layout.setSpacing(false);
         layout.setAlignItems(Alignment.CENTER);
         
         VerticalLayout uploadLayout = new VerticalLayout();
@@ -190,7 +220,7 @@ public class ProductForm extends AbstractForm<Product> {
 
     private void configureRecipeGrid() {
         recipeGrid.addClassName("recipe-grid");
-        recipeGrid.setHeight("180px");
+        recipeGrid.setHeight("300px");
         recipeGrid.addThemeVariants(GridVariant.LUMO_COMPACT, GridVariant.LUMO_ROW_STRIPES);
 
         recipeGrid.addColumn(pi -> pi.getRawMaterial().getName()).setHeader("Insumo");

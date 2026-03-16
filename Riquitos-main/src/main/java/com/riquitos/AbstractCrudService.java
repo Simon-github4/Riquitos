@@ -3,8 +3,8 @@ package com.riquitos;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 // T = Entidad (ej: PriceList), ID = Tipo de la PK (ej: Long)

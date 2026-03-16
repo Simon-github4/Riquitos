@@ -52,7 +52,7 @@ public class PriceListProductsView
 
     @Override
     protected ProductForm createForm() {
-        return new ProductForm(rawMaterialService);
+        return null;//new ProductForm(rawMaterialService);
     }
 
     @Override
