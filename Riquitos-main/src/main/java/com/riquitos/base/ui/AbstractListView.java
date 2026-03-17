@@ -3,6 +3,7 @@ package com.riquitos.base.ui;
 import com.riquitos.AbstractCrudService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.notification.Notification;
@@ -80,23 +81,40 @@ public abstract class AbstractListView<T, F extends AbstractForm<T>, S extends A
 	            Notification.show("Guardado correctamente", 3000, Position.TOP_CENTER)
 	            .addThemeVariants(NotificationVariant.LUMO_SUCCESS);
             } catch (Exception ex) {
-            	ex.printStackTrace();
-                Notification.show("No se pudo guardar.", 5000, Position.TOP_CENTER)
-                .addThemeVariants(NotificationVariant.LUMO_ERROR);
+            	String errorDetalle = ex.getMessage();
+                if (ex.getCause() != null) 
+                    errorDetalle += " -> " + ex.getCause().getMessage();
+
+                Notification.show("Error al guardar, revise todos los campos ", 5000, Notification.Position.TOP_CENTER)
+                            .addThemeVariants(NotificationVariant.LUMO_ERROR);
+                ex.printStackTrace();
             }
         });
 
-        form.addDeleteListener( e -> {
-            try {
-                service.delete(e.getBean());
-                updateList();
-                closeEditor();
-                Notification.show("Elemento eliminado", 3000, Position.TOP_CENTER)
-                .addThemeVariants(NotificationVariant.LUMO_PRIMARY);
-            } catch (Exception ex) {// Captura errores de integridad referencial (ej: borrar una Marca usada en Productos)
-                Notification.show("No se puede eliminar: el ítem está en uso.", 5000, Position.TOP_CENTER)
-                .addThemeVariants(NotificationVariant.LUMO_ERROR);
-            }
+        form.addDeleteListener(e -> {
+            ConfirmDialog dialog = new ConfirmDialog();
+            dialog.setHeader("¿Confirmar eliminación?");
+            dialog.setText("¿Estás seguro de que deseas eliminar este elemento? Esta acción no se puede deshacer.");
+
+            dialog.setCancelable(true);
+            dialog.setCancelText("Cancelar");
+
+            dialog.setConfirmText("Eliminar");
+            dialog.setConfirmButtonTheme("error primary"); // Color rojo para advertir peligro
+            dialog.addConfirmListener(event -> {
+                try {
+                    service.delete(e.getBean());
+                    updateList();
+                    closeEditor();
+                    Notification.show("Elemento eliminado", 3000, Position.TOP_CENTER)
+                        .addThemeVariants(NotificationVariant.LUMO_PRIMARY);
+                } catch (Exception ex) {
+                    Notification.show("No se puede eliminar: el ítem está en uso.", 5000, Position.TOP_CENTER)
+                        .addThemeVariants(NotificationVariant.LUMO_ERROR);
+                    ex.printStackTrace();
+                }
+            });
+            dialog.open();
         });
 
         form.addCloseListener( e -> closeEditor());

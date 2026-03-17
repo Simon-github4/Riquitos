@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 
 import com.riquitos.production.material.RawMaterial;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -26,7 +27,8 @@ public class ProductIngredient {
     @JoinColumn(name = "raw_material_id")
     private RawMaterial rawMaterial;
 
-    private BigDecimal quantityRequired; // Cantidad necesaria para 1 unidad de producto
+    @Column(precision = 12, scale = 5)
+    private BigDecimal quantityRequired; // Cantidad necesaria para 1 KG de producto
 
     public ProductIngredient() {}
 

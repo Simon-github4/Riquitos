@@ -43,7 +43,6 @@ public class StockMovementForm extends AbstractForm<StockMovement> {
             observations
         );
         
-        // No mostramos el botón de borrar para movimientos de stock (por auditoría)
         showButtonDelete(false);
     }
 
@@ -127,6 +126,10 @@ public class StockMovementForm extends AbstractForm<StockMovement> {
             bean.setMovementDateTime(LocalDateTime.now());
         }
         super.setBean(bean);
-        //updateStockPreview();
+    }
+    
+    public boolean isEliminable(StockMovement movement) {
+        return movement != null && movement.getType() != null 
+            && movement.getType() != StockMovementType.EGRESO;
     }
 }

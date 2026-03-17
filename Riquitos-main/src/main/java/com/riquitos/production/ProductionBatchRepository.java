@@ -1,5 +1,6 @@
 package com.riquitos.production;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -26,4 +27,15 @@ public interface ProductionBatchRepository extends JpaRepository<ProductionBatch
     
     //Contar producción desde el inicio del día de hoy
     long countByProductionDateAfter(LocalDateTime date);
+    
+    @Query("SELECT p FROM ProductionBatch p " +
+            "WHERE p.product.id = :productId " +
+            "AND p.productionDate BETWEEN :start AND :end " +
+            "AND p.bagsOrBoxProduced = :units")
+     List<ProductionBatch> findByProductIdAndProductionDateBetweenAndBagsOrBoxProduced(
+         @Param("productId") Long productId, 
+         @Param("start") LocalDateTime start, 
+         @Param("end") LocalDateTime end, 
+         @Param("units") BigDecimal units
+     );
 }

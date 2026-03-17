@@ -98,6 +98,7 @@ public final class MainLayout extends AppLayout {
                 seccionComercial.addItem(item); // Agrega dentro de Comercial
                 
             } else if (titulo.equals("Insumos") || 
+            		   titulo.equals("Categorias")||
                        titulo.equals("Kardex de Stock")||
                        titulo.equals("Productos")) {
                        

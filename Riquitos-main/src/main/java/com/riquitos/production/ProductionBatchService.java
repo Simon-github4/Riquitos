@@ -114,5 +114,17 @@ public class ProductionBatchService extends AbstractCrudService<ProductionBatch,
     public List<StockMovement> obtenerMovimientosDeBatch(Long batchId) {
         return stockMovementService.findByProductionBatchId(batchId);
     }
+    
+    @Transactional(readOnly = true)
+    public boolean existsDuplicado(Long productId, LocalDateTime productionDateTime, BigDecimal cantidadBolsones) {
+        LocalDateTime startOfDay = productionDateTime.toLocalDate().atStartOfDay();
+        LocalDateTime endOfDay = productionDateTime.toLocalDate().atTime(23, 59, 59);
+        
+        List<ProductionBatch> duplicados = batchRepository.findByProductIdAndProductionDateBetweenAndBagsOrBoxProduced(
+            productId, startOfDay, endOfDay, cantidadBolsones
+        );
+        
+        return !duplicados.isEmpty();
+    }
 
 }

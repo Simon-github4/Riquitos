@@ -11,7 +11,7 @@ import jakarta.annotation.security.RolesAllowed;
 
 @Route(value = "categories", layout = MainLayout.class)
 @PageTitle("Categorias")
-@Menu(order = 1, icon = "vaadin:invoice", title = "Categorias")
+@Menu(order = 8, icon = "vaadin:tags", title = "Categorias")
 @RolesAllowed({"VENDEDOR", "ADMIN"})
 public class CategoryView extends AbstractListView<Category, CategoryForm, CategoryService>{
 

@@ -18,6 +18,7 @@ import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.datetimepicker.DateTimePicker;
 import com.vaadin.flow.component.textfield.BigDecimalField;
 import com.vaadin.flow.router.Menu;
@@ -194,14 +195,22 @@ public class ProductSelectionView extends VerticalLayout {
             if (quantityField.getValue() == null || quantityField.getValue().compareTo(BigDecimal.ZERO) <= 0) {
                 Notification.show("Ingrese una cantidad válida", 3000, Notification.Position.MIDDLE)
                     .addThemeVariants(NotificationVariant.LUMO_ERROR);
+                ((Button) e.getSource()).setEnabled(true);
                 return;
             }
             
             LocalDateTime productionDateTime = dateTimePicker.getValue() != null ? 
                 dateTimePicker.getValue() : LocalDateTime.now();
             
-            registerProduction(product, quantityField.getValue(), productionDateTime);
-            dialog.close();
+            boolean duplicado = productionBatchService.existsDuplicado(
+                product.getId(), productionDateTime, quantityField.getValue());
+            
+            if (duplicado) {
+                mostrarConfirmacionDuplicado(product, quantityField.getValue(), productionDateTime, dialog);
+            } else {
+                registerProduction(product, quantityField.getValue(), productionDateTime);
+                dialog.close();
+            }
         });
         confirmBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SUCCESS);
         confirmBtn.addClickShortcut(com.vaadin.flow.component.Key.ENTER);
@@ -238,5 +247,30 @@ public class ProductSelectionView extends VerticalLayout {
                 Notification.Position.MIDDLE
             ).addThemeVariants(NotificationVariant.LUMO_ERROR);
         }
+    }
+    
+    private void mostrarConfirmacionDuplicado(Product product, BigDecimal quantity, 
+            LocalDateTime productionDateTime, Dialog parentDialog) {
+        ConfirmDialog confirmDialog = new ConfirmDialog();
+        confirmDialog.setHeader("Producción Duplicada");
+        confirmDialog.setText("Ya existe una producción registrada ese dia para el producto \"" + 
+            product.getDescription() + "\" con la misma cantidad (" + quantity + ").\n\n" +
+            "¿Desea registrar esta producción de todas formas?");
+        
+        confirmDialog.setCancelable(true);
+        confirmDialog.setCancelText("Cancelar");
+        confirmDialog.setConfirmText("Registrar de Todas Formas");
+        confirmDialog.setConfirmButtonTheme("error primary");
+        
+        confirmDialog.addConfirmListener(event -> {
+            registerProduction(product, quantity, productionDateTime);
+            parentDialog.close();
+        });
+        
+        confirmDialog.addCancelListener(event -> {
+            confirmDialog.close();
+        });
+        
+        confirmDialog.open();
     }
 }

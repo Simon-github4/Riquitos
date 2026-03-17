@@ -3,6 +3,8 @@ package com.riquitos.product;
 import java.math.BigDecimal;
 import java.util.List;
 
+import com.riquitos.categories.Category;
+
 import jakarta.persistence.Basic;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -11,9 +13,12 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Lob;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Entity
@@ -38,15 +43,20 @@ public class Product {
     private String sku;
 
     // Using BigDecimal for monetary precision
+    @NotNull(message = "El precio de costo no puede estar vacío") // Este mensaje es para el usuario
     @Column(name = "cost_price", nullable = false, precision = 12, scale = 2)
     private BigDecimal costPrice;
 
     @OneToMany(mappedBy = "product", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductIngredient> recipe;
     
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "category_id")
+    private Category category;
+    
     @Lob
     @Column(name = "image_data")
-    @Basic(fetch = FetchType.LAZY) // Intenta no cargarla a menos que se pida explícitamente
+    @Basic(fetch = FetchType.LAZY) 
     private byte[] imageData;
     
     public Product() {}

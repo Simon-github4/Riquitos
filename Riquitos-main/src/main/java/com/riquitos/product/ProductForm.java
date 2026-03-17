@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Locale;
 
+import com.vaadin.flow.component.checkbox.Checkbox;
 import com.riquitos.base.ui.AbstractForm;
 import com.riquitos.categories.Category;
 import com.riquitos.categories.CategoryService;
@@ -40,7 +41,8 @@ public class ProductForm extends AbstractForm<Product> {
     BigDecimalField costPrice = new BigDecimalField("Precio Costo");
     IntegerField unitiesPerBagOrBox = new IntegerField("Unidades x Bolson/Caja");
     IntegerField netWeight = new IntegerField("Peso en Gramos (g)", "Ej: 250 para 250g");
-    ComboBox<Category> categoryCombo = new ComboBox<>("Categoría");
+    ComboBox<Category> category = new ComboBox<>("Categoría");
+    //TODO  Checkbox usesCardBoard = new Checkbox("¿Usa Cartón?"); 
     
     // --- CAMPO PARA IMAGEN ---
     private final MemoryBuffer imageBuffer = new MemoryBuffer();
@@ -64,10 +66,10 @@ public class ProductForm extends AbstractForm<Product> {
         costPrice.setLocale(new Locale("es", "AR")); 
         costPrice.setPlaceholder("0.00");
         
-        categoryCombo.setItems(categoryService.findAll()); 
-        categoryCombo.setItemLabelGenerator(Category::getName);
-        categoryCombo.setPlaceholder("Seleccione categoría...");
-        categoryCombo.setWidthFull();
+        category.setItems(categoryService.findAll()); 
+        category.setItemLabelGenerator(Category::getName);
+        category.setPlaceholder("Seleccione categoría...");
+        category.setWidthFull();
         
         configureImageUpload();
         configureRecipeControls();
@@ -93,18 +95,18 @@ public class ProductForm extends AbstractForm<Product> {
     private VerticalLayout createGeneralTab() {
         HorizontalLayout row1 = new HorizontalLayout(unitiesPerBagOrBox, netWeight);
         row1.setWidthFull();
-        row1.setDefaultVerticalComponentAlignment(Alignment.CENTER);
+        row1.setDefaultVerticalComponentAlignment(Alignment.BASELINE);
+        netWeight.setWidthFull();
 
-        HorizontalLayout row2 = new HorizontalLayout(description, categoryCombo);
+        HorizontalLayout row2 = new HorizontalLayout(description, category);
         row2.setWidthFull();
-        row2.setDefaultVerticalComponentAlignment(Alignment.CENTER);
-        description.setWidth("60%");
-        categoryCombo.setWidth("40%");
+        row2.setDefaultVerticalComponentAlignment(Alignment.BASELINE);
+        description.setWidthFull();
 
         HorizontalLayout row3 = new HorizontalLayout(sku, costPrice);
         row3.setWidthFull();
         row3.setDefaultVerticalComponentAlignment(Alignment.BASELINE);
-        //costPrice.setWidth("30%");
+        sku.setWidthFull();
         
         VerticalLayout imageSection = new VerticalLayout();
         imageSection.setPadding(false);
@@ -120,8 +122,9 @@ public class ProductForm extends AbstractForm<Product> {
         VerticalLayout recipeSection = new VerticalLayout();
         recipeSection.setWidthFull();
         recipeSection.setPadding(false);
-        recipeSection.setSpacing(true);
+        recipeSection.setSpacing(false);
         recipeSection.add(
+        	//usesCardBoard,
             new H4("Ingredientes por Kg de Producto"),
             createIngredientInputLayout(), 
             recipeGrid                    

@@ -46,6 +46,11 @@ public class ProductView extends AbstractListView<Product, ProductForm, ProductS
             .setWidth("200px")
             .setFlexGrow(1); 
 
+        grid.addColumn(Product::getCategory)
+        .setHeader("Categoria")
+        .setWidth("150px")
+        .setFlexGrow(0);
+        
         grid.addColumn(Product::getNetWeight)
         .setHeader("Peso (g) x unidad")
         .setAutoWidth(true)

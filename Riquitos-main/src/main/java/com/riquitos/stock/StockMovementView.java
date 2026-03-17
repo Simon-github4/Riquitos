@@ -1,6 +1,5 @@
 package com.riquitos.stock;
 
-import java.math.BigDecimal;
 import java.time.format.DateTimeFormatter;
 
 import com.riquitos.base.ui.MainLayout;
@@ -12,6 +11,7 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
@@ -30,7 +30,6 @@ import com.vaadin.flow.router.Menu;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
-import jakarta.annotation.security.PermitAll;
 import jakarta.annotation.security.RolesAllowed;
 
 @Route(value = "stock/movimientos", layout = MainLayout.class)
@@ -152,12 +151,44 @@ public class StockMovementView extends VerticalLayout {
 	      .setWidth("125px")
 	      .setFlexGrow(0);
 	
-	    grid.addColumn(StockMovement::getObservations)
-	        .setHeader("Observaciones")
-	        .setAutoWidth(true)
-	        .setFlexGrow(2); // Doble de prioridad para ocupar el resto del monitor
-	
-	    grid.setSizeFull();
+ 	    grid.addColumn(StockMovement::getObservations)
+ 	        .setHeader("Observaciones")
+ 	        .setAutoWidth(true)
+ 	        .setFlexGrow(2);
+ 	    
+ 	   grid.addComponentColumn(movement -> {
+ 		    Div container = new Div();
+ 		    container.getStyle()
+ 		        .set("display", "flex")
+ 		        .set("align-items", "center")
+ 		        .set("justify-content", "center")
+ 		        .set("height", "32px"); // Altura fija pequeña para que no expanda la fila
+ 		    
+ 		    if (movement.getType() == StockMovementType.EGRESO) {
+ 		        Icon infoIcon = VaadinIcon.INFO.create();
+ 		        infoIcon.setColor("var(--lumo-primary-color)");
+ 		        infoIcon.setSize("18px"); // Tamaño controlado
+ 		        infoIcon.getTooltip().setText("Si necesitas eliminar un egreso, debes eliminar el Lote de producción");
+ 		        
+ 		        container.add(infoIcon);
+ 		        container.getStyle().set("cursor", "help");
+ 		    } else {
+ 		        Icon deleteIcon = VaadinIcon.TRASH.create();
+ 		        deleteIcon.setColor("var(--lumo-error-text-color)");
+ 		        deleteIcon.setSize("18px");
+ 		        deleteIcon.getStyle() .set("cursor", "pointer");
+ 		        deleteIcon.getTooltip().setText("Eliminar movimiento");
+ 		        deleteIcon.addClickListener(e -> confirmarEliminacion(movement));
+ 		        
+ 		        container.add(deleteIcon);
+ 		    }
+ 		    
+ 		    return container;
+ 		}).setHeader("Acciones")
+ 		  .setWidth("90px")
+ 		  .setFlexGrow(0);
+ 	
+ 	    grid.setSizeFull();
 	    grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_COMPACT, GridVariant.LUMO_NO_BORDER);
     }
 
@@ -298,6 +329,38 @@ public class StockMovementView extends VerticalLayout {
         
         movementForm.setBean(movement);
         dialog.open();
+    }
+    
+    private void deleteMovement(StockMovement movement) {
+        try {
+            service.delete(movement);
+            showSuccess("Movimiento eliminado correctamente");
+            updateList();
+            dialog.close();
+        } catch (Exception e) {
+            showError("Error al eliminar: " + e.getMessage());
+        }
+    }
+    
+    private void confirmarEliminacion(StockMovement movement) {
+        ConfirmDialog confirmDialog = new ConfirmDialog();
+        confirmDialog.setHeader("Eliminar Movimiento");
+        confirmDialog.setText("¿Está seguro que desea eliminar este movimiento de stock?\n\n" +
+            "Tipo: " + movement.getType() + "\n" +
+            "Cantidad: " + movement.getQuantity() + "\n" +
+            "Materia Prima: " + (movement.getRawMaterial() != null ? movement.getRawMaterial().getName() : "N/A") + "\n\n" +
+            "El stock será recalculado automáticamente.");
+        
+        confirmDialog.setCancelable(true);
+        confirmDialog.setCancelText("Cancelar");
+        confirmDialog.setConfirmText("Eliminar");
+        confirmDialog.setConfirmButtonTheme("error primary");
+        
+        confirmDialog.addConfirmListener(event -> {
+            deleteMovement(movement);
+        });
+        
+        confirmDialog.open();
     }
 
     // --- Métodos de Notificación Auxiliares ---

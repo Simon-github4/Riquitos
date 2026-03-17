@@ -1,5 +1,6 @@
 package com.riquitos.production;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -117,19 +118,23 @@ public class ProductionBatchView extends VerticalLayout {
             details.setPadding(false);
             
             if (batch.getProduct() != null) {
-                com.vaadin.flow.component.html.H3 title = new com.vaadin.flow.component.html.H3(
-                        "Detalles del Lote #" + batch.getId());
-                details.add(title);
-
+                details.add(new com.vaadin.flow.component.html.H3("Detalles del Lote #" + batch.getId()));
+                
+                BigDecimal weightGrams = BigDecimal.valueOf(batch.getProduct().getNetWeight());
+				BigDecimal batchKg = batch.getUnitiesProduced().multiply(weightGrams).divide(new BigDecimal("1000"));
+				
+				Paragraph p = new Paragraph("Peso Total Producido: " + batchKg.setScale(2, BigDecimal.ROUND_HALF_UP) + " kg");
+				 p.getStyle().set("font-weight", "bold");
+				 details.add(p);
+				 
                 if (batch.getUnitiesProduced() != null) {
                     List<StockMovement> movements = stockMovementService.findByProductionBatchId(batch.getId());
                     for(StockMovement mov : movements) {
-                        Paragraph p = new Paragraph(
+                        p = new Paragraph(
                             (mov.getRawMaterial() != null ? mov.getRawMaterial().getName() : "N/A") +
                             " | Cantidad Usada: " + 
                             (mov.getQuantity() != null ? mov.getQuantity().toString() : "N/A") +
                             (mov.getRawMaterial().getUnit() != null ? " " + mov.getRawMaterial().getUnit() : ""));
-                            p.getStyle().set("font-weight", "bold");
                         details.add(p);
                     }
                 }

@@ -106,65 +106,79 @@ public class ReportService {
             
             document.add(new Paragraph("\n"));
 
+			// ==========================================
+            // 1. RESUMEN DE PRODUCCIÓN POR CATEGORÍA
             // ==========================================
-            // 1. RESUMEN DE PRODUCCIÓN POR PRODUCTO
-            // ==========================================
-            document.add(new Paragraph("RESUMEN DE PRODUCCIÓN (Por Producto)")
-                    .setFontSize(14)
-                    .setBold());
+			document.add(new Paragraph("RESUMEN DE PRODUCCIÓN (Por Categoría)").setFontSize(14).setBold());
 
-            Map<String, ProductionStats> prodStatsMap = new TreeMap<>(); 
+			Map<String, ProductionStats> catStatsMap = new TreeMap<>();
 
-            for (ProductionBatch p : productions) {
-                String prodName = p.getProduct() != null ? p.getProduct().getDescription() : "Desconocido";
-                
-                ProductionStats stats = prodStatsMap.computeIfAbsent(prodName, k -> new ProductionStats());
-                
-                stats.count++; 
-                if (p.getUnitiesProduced() != null) {
-                    stats.totalUnits = stats.totalUnits.add(p.getUnitiesProduced());
-                }
-                if (p.getBagsOrBoxProduced() != null) {
-                    stats.totalBags = stats.totalBags.add(p.getBagsOrBoxProduced());
-                }
-            }
+			for (ProductionBatch p : productions) {
+				String catName = (p.getProduct() != null && p.getProduct().getCategory() != null)
+						? p.getProduct().getCategory().getName()
+						: "Sin Categoría";
 
-            if (!prodStatsMap.isEmpty()) {
-                Table prodTable = new Table(UnitValue.createPercentArray(new float[]{4, 2, 2, 2}));
-                prodTable.setWidth(UnitValue.createPercentValue(100));
-                
-                prodTable.addHeaderCell(createHeaderCell("Producto"));
-                prodTable.addHeaderCell(createHeaderCell("Cant. Lotes"));
-                prodTable.addHeaderCell(createHeaderCell("Total Unidades"));
-                prodTable.addHeaderCell(createHeaderCell("Total Bolsones/Cajas"));
+				ProductionStats stats = catStatsMap.computeIfAbsent(catName, k -> new ProductionStats());
 
-                int grandTotalLotes = 0;
-                BigDecimal grandTotalUnits = BigDecimal.ZERO;
-                BigDecimal grandTotalBags = BigDecimal.ZERO;
+				stats.count++;
+				if (p.getUnitiesProduced() != null) {
+					BigDecimal units = p.getUnitiesProduced();
+					stats.totalUnits = stats.totalUnits.add(units);
 
-                for (Map.Entry<String, ProductionStats> entry : prodStatsMap.entrySet()) {
-                    ProductionStats stats = entry.getValue();
-                    prodTable.addCell(createCell(entry.getKey()));
-                    prodTable.addCell(createCell(String.valueOf(stats.count)));
-                    prodTable.addCell(createCell(stats.totalUnits.toString()));
-                    prodTable.addCell(createCell(stats.totalBags.toString()));
+					// Cálculo de KG: (Unidades * peso_gramos) / 1000
+					if (p.getProduct() != null) {
+						BigDecimal weightGrams = BigDecimal.valueOf(p.getProduct().getNetWeight());
+						BigDecimal batchKg = units.multiply(weightGrams).divide(new BigDecimal("1000"));
+						stats.totalKg = stats.totalKg.add(batchKg);
+					}
+				}
+				if (p.getBagsOrBoxProduced() != null) {
+					stats.totalBags = stats.totalBags.add(p.getBagsOrBoxProduced());
+				}
+			}
 
-                    grandTotalLotes += stats.count;
-                    grandTotalUnits = grandTotalUnits.add(stats.totalUnits);
-                    grandTotalBags = grandTotalBags.add(stats.totalBags);
-                }
+			if (!catStatsMap.isEmpty()) {
+				// Tabla con 5 columnas ahora (Categoría, Lotes, Unidades, Bolsas, KG)
+				Table catTable = new Table(UnitValue.createPercentArray(new float[] { 3, 2, 2, 2, 2 }));
+				catTable.setWidth(UnitValue.createPercentValue(100));
 
-                prodTable.addCell(createHeaderCell("TOTALES"));
-                prodTable.addCell(createHeaderCell(String.valueOf(grandTotalLotes)));
-                prodTable.addCell(createHeaderCell(grandTotalUnits.toString()));
-                prodTable.addCell(createHeaderCell(grandTotalBags.toString()));
+				catTable.addHeaderCell(createHeaderCell("Categoría"));
+				catTable.addHeaderCell(createHeaderCell("Cant. Lotes"));
+				catTable.addHeaderCell(createHeaderCell("Total Unidades"));
+				catTable.addHeaderCell(createHeaderCell("Total Bolsones"));
+				catTable.addHeaderCell(createHeaderCell("Total KG"));
 
-                document.add(prodTable);
-            } else {
-                document.add(new Paragraph("No hubo producción en este periodo."));
-            }
+				int grandTotalLotes = 0;
+				BigDecimal grandTotalUnits = BigDecimal.ZERO;
+				BigDecimal grandTotalBags = BigDecimal.ZERO;
+				BigDecimal grandTotalKg = BigDecimal.ZERO;
 
-            document.add(new Paragraph("\n"));
+				for (Map.Entry<String, ProductionStats> entry : catStatsMap.entrySet()) {
+					ProductionStats stats = entry.getValue();
+					catTable.addCell(createCell(entry.getKey()));
+					catTable.addCell(createCell(String.valueOf(stats.count)));
+					catTable.addCell(createCell(stats.totalUnits.toString()));
+					catTable.addCell(createCell(stats.totalBags.toString()));
+					catTable.addCell(createCell(String.format("%.2f kg", stats.totalKg))); // Formateo a 2 decimales
+
+					grandTotalLotes += stats.count;
+					grandTotalUnits = grandTotalUnits.add(stats.totalUnits);
+					grandTotalBags = grandTotalBags.add(stats.totalBags);
+					grandTotalKg = grandTotalKg.add(stats.totalKg);
+				}
+
+				// Fila de Totales Generales
+				catTable.addCell(createHeaderCell("TOTALES"));
+				catTable.addCell(createHeaderCell(String.valueOf(grandTotalLotes)));
+				catTable.addCell(createHeaderCell(grandTotalUnits.toString()));
+				catTable.addCell(createHeaderCell(grandTotalBags.toString()));
+				catTable.addCell(createHeaderCell(String.format("%.2f kg", grandTotalKg)));
+
+				document.add(catTable);
+			} else 
+				document.add(new Paragraph("No hubo producción en este periodo."));
+
+			document.add(new Paragraph("\n"));
 
             // ==========================================
             // 2. RESUMEN DE MOVIMIENTOS DE INSUMOS
@@ -259,6 +273,7 @@ public class ReportService {
         int count = 0;
         BigDecimal totalUnits = BigDecimal.ZERO;
         BigDecimal totalBags = BigDecimal.ZERO;
+        BigDecimal totalKg = BigDecimal.ZERO; 
     }
 
     private static class MovementStats {
