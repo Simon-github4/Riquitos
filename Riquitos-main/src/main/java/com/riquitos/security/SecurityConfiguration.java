@@ -24,7 +24,8 @@ public class SecurityConfiguration {
                 "/icons/**",
                 "/manifest.webmanifest",
                 "/sw.js",
-                "/offline.html"
+                "/offline.html",
+                "/api/migracion/**"
             ).permitAll()
         );
 
