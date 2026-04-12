@@ -15,7 +15,7 @@ public class MigrationController {
     @Autowired
     private RecetaMigrationService migrationService;
     
-    @GetMapping("/recalcular-recetas")
+    /*@GetMapping("/recalcular-recetas")
     public String recalcularRecetas() {
         long startTime = System.currentTimeMillis();
         
@@ -30,5 +30,5 @@ public class MigrationController {
             "Nota: Eliminar esta URL después de usar.",
             actualizados, duration
         );
-    }
+    }*/
 }

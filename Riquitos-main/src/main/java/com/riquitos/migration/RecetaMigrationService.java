@@ -12,7 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.riquitos.product.Product;
 import com.riquitos.production.ProductionBatch;
-import com.riquitos.production.ProductionBatchRepository;
 import com.riquitos.production.ProductionBatchService;
 
 @Service
@@ -50,15 +49,14 @@ public class RecetaMigrationService {
                     producto.getDescription(), 
                     batch.getProductionDate());
                 
-                // Anular los movimientos de stock existentes
-                productionBatchService.anularProduccion(batch);
+                // Actualizar unidades producidas si es necesario
+                if (batch.getUnitiesProduced() == null && batch.getBagsOrBoxProduced() != null && producto.getUnitiesPerBagOrBox() > 0) {
+                    BigDecimal unidades = batch.getBagsOrBoxProduced().multiply(BigDecimal.valueOf(producto.getUnitiesPerBagOrBox()));
+                    batch.setUnitiesProduced(unidades);
+                }
                 
-                // Volver a registrar con la receta actual
-                productionBatchService.registrarProduccion(
-                    producto, 
-                    batch.getBagsOrBoxProduced(), 
-                    batch.getProductionDate()
-                );
+                // Recalcular movimientos de stock con la receta actual
+                productionBatchService.recalcularMovimientosStock(batch);
                 
                 actualizados++;
                 log.info("Batch {} actualizado correctamente", batch.getId());

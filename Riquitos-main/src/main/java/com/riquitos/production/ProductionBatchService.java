@@ -109,6 +109,48 @@ public class ProductionBatchService extends AbstractCrudService<ProductionBatch,
         batchRepository.delete(batch);
     }
     
+    @Transactional
+    public void recalcularMovimientosStock(ProductionBatch batch) {
+        Product producto = batch.getProduct();
+        
+        if (producto == null) {
+            return;
+        }
+        
+        BigDecimal cantidadUnidadesProducidas = batch.getUnitiesProduced();
+        if (cantidadUnidadesProducidas == null && batch.getBagsOrBoxProduced() != null && producto.getUnitiesPerBagOrBox() > 0) {
+            cantidadUnidadesProducidas = batch.getBagsOrBoxProduced().multiply(BigDecimal.valueOf(producto.getUnitiesPerBagOrBox()));
+        }
+        
+        if (cantidadUnidadesProducidas == null) {
+            return;
+        }
+        
+        List<StockMovement> movimientosActuales = stockMovementService.findByProductionBatchId(batch.getId());
+        if (!movimientosActuales.isEmpty()) {
+            movimientosActuales.forEach(m -> stockMovementService.delete(m));
+        }
+        
+        if (producto.getRecipe() != null) {
+            BigDecimal pesoTotalProducidoKg = cantidadUnidadesProducidas
+                .multiply(BigDecimal.valueOf(producto.getNetWeight()))
+                .divide(BigDecimal.valueOf(1000));
+            
+            for (ProductIngredient ingrediente : producto.getRecipe()) {
+                BigDecimal consumoTotal = pesoTotalProducidoKg.multiply(ingrediente.getQuantityRequired());
+                
+                RawMaterial materiaPrima = ingrediente.getRawMaterial();
+                
+                stockMovementService.saveEgreso(
+                    materiaPrima,
+                    consumoTotal,
+                    batch,
+                    "Consumo en producción de " + producto.getDescription()
+                );
+            }
+        }
+    }
+    
     //Obtiene todos los movimientos de stock asociados a un batch de producción
     @Transactional(readOnly = true)
     public List<StockMovement> obtenerMovimientosDeBatch(Long batchId) {

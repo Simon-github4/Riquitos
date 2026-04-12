@@ -39,7 +39,7 @@ public class StockMovementFactory {
         movement.setRawMaterial(rawMaterial);
         movement.setQuantity(quantity);
         movement.setProductionBatch(productionBatch);
-        movement.setMovementDateTime(LocalDateTime.now());
+        movement.setMovementDateTime(productionBatch.getProductionDate());//LocalDateTime.now()
         movement.setObservations(observations);
         return movement;
     }

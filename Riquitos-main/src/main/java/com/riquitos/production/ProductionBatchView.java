@@ -104,12 +104,21 @@ public class ProductionBatchView extends VerticalLayout {
           .setAutoWidth(true).setSortable(true);
 
         grid.addComponentColumn(batch -> {
+            HorizontalLayout actions = new HorizontalLayout();
+            actions.setSpacing(false);
+            actions.setPadding(false);
+            
+            Button recalcBtn = new Button(new Icon(VaadinIcon.REFRESH));
+            recalcBtn.addThemeVariants(ButtonVariant.LUMO_ICON,ButtonVariant.LUMO_TERTIARY);
+            recalcBtn.setTooltipText("Recalcular con receta actual");
+            recalcBtn.addClickListener(e -> confirmarRecalculo(batch));
+            
             Button deleteBtn = new Button(new Icon(VaadinIcon.TRASH));
             deleteBtn.addThemeVariants(ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_ERROR, ButtonVariant.LUMO_TERTIARY);
-            
             deleteBtn.addClickListener(e -> confirmarEliminacion(batch));
             
-            return deleteBtn;
+            actions.add(recalcBtn, deleteBtn);
+            return actions;
         }).setHeader("Acciones").setAutoWidth(true);
         
         grid.setItemDetailsRenderer(new com.vaadin.flow.data.renderer.ComponentRenderer<>(batch -> {
@@ -212,6 +221,37 @@ public class ProductionBatchView extends VerticalLayout {
         } catch (Exception e) {
             e.printStackTrace();
             Notification notification = Notification.show("Error al anular la producción: " + e.getMessage());
+            notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+        }
+    }
+    
+    private void confirmarRecalculo(ProductionBatch batch) {
+        ConfirmDialog dialog = new ConfirmDialog();
+        dialog.setHeader("Recalcular Lote");
+        dialog.setText(String.format("¿Recalcular los movimientos de stock del lote #%d de %s con la receta ACTUAL?\n\n" +
+                          "Esto actualizará el consumo de materias primas según la receta vigente.", 
+                          batch.getId(),
+                          batch.getProduct().getDescription())
+        );
+        dialog.setCancelable(true);
+        dialog.setCancelText("Cancelar");
+        
+        dialog.setConfirmText("Recalcular");
+        dialog.addConfirmListener(event -> recalcularProduccion(batch));
+        dialog.open();
+    }
+    
+    private void recalcularProduccion(ProductionBatch batch) {
+        try {
+            service.recalcularMovimientosStock(batch);
+            updateList();
+            
+            Notification notification = Notification.show("Lote #" + batch.getId() + " recalculado correctamente.");
+            notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            Notification notification = Notification.show("Error al recalcular el lote: " + e.getMessage());
             notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
         }
     }
