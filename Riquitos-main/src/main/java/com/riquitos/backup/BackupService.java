@@ -2,7 +2,9 @@ package com.riquitos.backup;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -18,6 +20,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+
+import com.dropbox.core.DbxRequestConfig;
+import com.dropbox.core.http.OkHttp3Requestor;
+import com.dropbox.core.oauth.DbxCredential;
+import com.dropbox.core.v2.DbxClientV2;
+import com.dropbox.core.v2.files.FileMetadata;
+import com.dropbox.core.v2.files.WriteMode;
 
 @Service
 public class BackupService {
@@ -48,6 +57,15 @@ public class BackupService {
     @Value("${app.backup.auto-enabled:true}")
     private boolean autoBackupEnabled;
 
+    @Value("${dropbox.refresh-token:}")
+    private String dropboxRefreshToken;
+
+    @Value("${dropbox.app-key:}")
+    private String dropboxAppKey;
+
+    @Value("${dropbox.app-secret:}")
+    private String dropboxAppSecret;
+
     @Scheduled(fixedRate = 86400000)
     public void scheduledBackup() {
         if (!autoBackupEnabled) {
@@ -56,7 +74,10 @@ public class BackupService {
         logger.info("Iniciando backup automático...");
         try {
             String backupPath = createBackup();
-            logger.info("Backup automático completado: {}", backupPath);
+            logger.info("Backup local completado: {}", backupPath);
+            
+            uploadToDropbox(backupPath, "BACKUP_Riquitos.sql");
+            
         } catch (Exception e) {
             logger.error("Error en backup automático: {}", e.getMessage(), e);
         }
@@ -73,16 +94,11 @@ public class BackupService {
 
         List<String> command = new ArrayList<>();
         command.add(pgDumpPath);
-        command.add("-h");
-        command.add(extractHost(dbUrl));
-        command.add("-p");
-        command.add(extractPort(dbUrl));
-        command.add("-U");
-        command.add(dbUsername);
-        command.add("-d");
-        command.add(dbName);
-        command.add("-f");
-        command.add(backupFilePath.toString());
+        command.add("-h"); command.add(extractHost(dbUrl));
+        command.add("-p"); command.add(extractPort(dbUrl));
+        command.add("-U"); command.add(dbUsername);
+        command.add("-d"); command.add(dbName);
+        command.add("-f"); command.add(backupFilePath.toString());
         command.add("--clean");
         command.add("--if-exists");
         command.add("-Fc");
@@ -96,18 +112,44 @@ public class BackupService {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
             String line;
             while ((line = reader.readLine()) != null) {
-                System.out.println("[pg_dump] " + line);
+                logger.debug("[pg_dump] {}", line);
             }
         }
 
         int exitCode = process.waitFor();
         if (exitCode != 0) {
-            throw new RuntimeException("Backup failed with exit code: " + exitCode);
+            throw new RuntimeException("Backup local falló con código: " + exitCode);
         }
 
         cleanupOldBackups();
-
         return backupFilePath.toString();
+    }
+
+    private void uploadToDropbox(String filePath, String fileName) {
+        if (dropboxRefreshToken.isEmpty() || dropboxAppKey.isEmpty() || dropboxAppSecret.isEmpty()) {
+            logger.warn("Saltando subida a Dropbox: Faltan credenciales en la configuración.");
+            return;
+        }
+
+        DbxRequestConfig config = DbxRequestConfig.newBuilder("riquitos-backup-app")
+            .withHttpRequestor(new OkHttp3Requestor(new okhttp3.OkHttpClient()))
+            .build();
+
+        DbxCredential credential = new DbxCredential("", 0L, dropboxRefreshToken, dropboxAppKey, dropboxAppSecret);
+        DbxClientV2 client = new DbxClientV2(config, credential);
+        
+        try (InputStream in = new FileInputStream(filePath)) {
+            logger.info("Iniciando subida a Dropbox: {}", fileName);
+            
+            FileMetadata metadata = client.files().uploadBuilder("/" + fileName)
+                    .withMode(WriteMode.OVERWRITE)
+                    .uploadAndFinish(in);
+            
+            logger.info("Backup subido a Dropbox con éxito: {}", metadata.getPathDisplay());
+
+        } catch (Exception e) {
+            logger.error("Error al subir a Dropbox: {}", e.getMessage());
+        }
     }
 
     public List<BackupInfo> listBackups() throws IOException {
