@@ -16,3 +16,11 @@ vite.generated.ts
 # Sensitive configuration files
 src/main/resources/application.properties
 src/test/resources/application.properties
+src/main/resources/*.properties
+src/test/resources/*.properties
+src/main/resources/*.crt
+src/main/resources/*.cer
+src/main/resources/*.pem
+src/main/resources/*.p12
+src/main/resources/*.pfx
+src/main/resources/*.jks
