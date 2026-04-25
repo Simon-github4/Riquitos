@@ -1,13 +1,26 @@
+/target/
+.idea/
+.vscode/
+.settings
+.project
+.classpath
 
-# Ignore Java compiled classes
+*.iml
+.DS_Store
 
-*.class
+# The following files are generated/updated by vaadin-maven-plugin
+node_modules/
+src/main/frontend/generated/
+vite.generated.ts
 
-**/*.class
-
-target/
-
-build/
-
-out/
-
+# Sensitive configuration files
+src/main/resources/application.properties
+src/test/resources/application.properties
+src/main/resources/*.properties
+src/test/resources/*.properties
+src/main/resources/*.crt
+src/main/resources/*.cer
+src/main/resources/*.pem
+src/main/resources/*.p12
+src/main/resources/*.pfx
+src/main/resources/*.jks
